@@ -28,7 +28,8 @@ const {
 } = Astro.props;
 
 const canonical = absoluteUrl(path);
-const fullTitle = title === site.name ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
+const fullTitle =
+  title === site.name ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
 
 const structuredData = {
   '@context': 'https://schema.org',

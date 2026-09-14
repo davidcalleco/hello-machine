@@ -25,7 +25,13 @@ const {
 
 <section
   id={id}
-  class:list={[`section`, `theme-${theme}`, `section--${size}`, { 'section--divider': divider }, className]}
+  class:list={[
+    `section`,
+    `theme-${theme}`,
+    `section--${size}`,
+    { 'section--divider': divider },
+    className,
+  ]}
   aria-labelledby={labelledby}
 >
   <div class="shell">
