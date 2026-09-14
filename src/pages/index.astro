@@ -1,0 +1,508 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import GridMotif from '../components/GridMotif.astro';
+import Section from '../components/Section.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import { hero, heroFacts, trust, offers, capabilities, process, proof, faqs } from '../data/home';
+import { integrations } from '../lib/site';
+---
+
+<BaseLayout
+  title="Hello Machine — Expert-led websites, accelerated by AI"
+  description="Hello Machine builds and runs expert-led websites, accelerated by AI. Strategy, design, content, build, hosting, SEO/AEO and ongoing care."
+  path="/"
+  headerTheme="ink"
+>
+  <Section theme="ink" size="default" class="hero">
+    <div class="hero__grid">
+      <div class="hero__copy" data-reveal>
+        <p class="label">{hero.eyebrow}</p>
+        <h1>{hero.title}</h1>
+        <p class="lead">{hero.lead}</p>
+        <div class="hero__actions">
+          <Button href={integrations.booking.url} size="large">Start a conversation</Button>
+          <a class="text-link" href="#services">See how we help <span aria-hidden="true">↓</span></a
+          >
+        </div>
+        <p class="hero__note">{hero.note}</p>
+      </div>
+      <div
+        class="hero__visual"
+        aria-label="A structured grid representing human-supervised systems"
+        data-reveal
+      >
+        <GridMotif />
+        <div class="hero__stamp"><span>HM</span><span>01—26</span></div>
+      </div>
+    </div>
+    <dl class="hero-facts" data-reveal>
+      {
+        heroFacts.map((fact) => (
+          <div>
+            <>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </>
+          </div>
+        ))
+      }
+    </dl>
+  </Section>
+
+  <Section id="services" labelledby="services-title" divider>
+    <SectionHeader
+      label="Ways to work together"
+      title="The right level of involvement for what you need next."
+      id="services-title"
+      lead="Choose the relationship that fits your team, timeline and appetite for ownership. We will help you choose honestly."
+    />
+    <div class="offer-grid">
+      {
+        offers.map((offer) => (
+          <article class:list={['offer', { 'offer--featured': offer.featured }]} data-reveal>
+            <div class="offer__top">
+              <span class="label">{offer.index}</span>
+              {offer.featured && <span class="offer__badge">Most continuous</span>}
+            </div>
+            <h3>{offer.name}</h3>
+            <p class="offer__summary">{offer.summary}</p>
+            <p class="offer__best">
+              <strong>Best for</strong> {offer.bestFor}
+            </p>
+            <ul class="check-list">
+              {offer.includes.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+            <Button href={offer.action.href} variant={offer.featured ? 'primary' : 'secondary'}>
+              {offer.action.label}
+            </Button>
+          </article>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section id="capabilities" labelledby="capabilities-title" theme="forest" divider>
+    <SectionHeader
+      label="The full system"
+      title="One accountable team, from first question to ongoing care."
+      id="capabilities-title"
+      lead="No handoffs between strategy, design and build. The work stays coherent because the responsibility does too."
+    />
+    <div class="capability-grid">
+      {
+        capabilities.map((capability, index) => (
+          <article class="capability" data-reveal style={`--reveal-delay: ${index * 45}ms`}>
+            <>
+              <span class="label">0{index + 1}</span>
+              <h3>{capability.name}</h3>
+              <p>{capability.description}</p>
+            </>
+          </article>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section labelledby="trust-title" divider>
+    <SectionHeader label={trust.eyebrow} title={trust.title} id="trust-title" lead={trust.lead} />
+    <div class="trust-grid">
+      {
+        trust.columns.map((column) => (
+          <article class="trust-card" data-reveal>
+            <>
+              <h3>{column.title}</h3>
+              <p>{column.description}</p>
+              <ul class="check-list">
+                {column.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </>
+          </article>
+        ))
+      }
+    </div>
+    <p class="assurance" data-reveal><span aria-hidden="true">↳</span> {trust.assurance}</p>
+  </Section>
+
+  <Section id="process" labelledby="process-title" theme="paper" divider>
+    <SectionHeader
+      label="The process"
+      title="Deliberate where it matters. Fast where it does not."
+      id="process-title"
+      lead="A clear path, a named owner and no theatre around the tools."
+    />
+    <ol class="process-list">
+      {
+        process.map((step, index) => (
+          <li class="process-step" data-reveal>
+            <>
+              <span class="process-step__number">0{index + 1}</span>
+              <div>
+                <>
+                  <h3>{step.name}</h3>
+                  <p>{step.description}</p>
+                  <p class="process-step__supervision">
+                    <strong>Supervision:</strong> {step.supervision}
+                  </p>
+                </>
+              </div>
+            </>
+          </li>
+        ))
+      }
+    </ol>
+  </Section>
+
+  <Section labelledby="proof-title" theme="ink" divider>
+    <SectionHeader label={proof.eyebrow} title={proof.title} id="proof-title" lead={proof.lead} />
+    <div class="proof-grid">
+      {
+        proof.points.map((point) => (
+          <article data-reveal>
+            <>
+              <span class="proof-mark" aria-hidden="true">
+                +
+              </span>
+              <h3>{point.title}</h3>
+              <p>{point.description}</p>
+            </>
+          </article>
+        ))
+      }
+    </div>
+    <Button href={proof.cta.href} variant="secondary">{proof.cta.label}</Button>
+  </Section>
+
+  <Section id="faq" labelledby="faq-title" divider>
+    <SectionHeader
+      label="Questions we get"
+      title="Before you put us on the project."
+      id="faq-title"
+    />
+    <div class="faq-list">
+      {
+        faqs.map((faq) => (
+          <details data-reveal>
+            <>
+              <summary>
+                {faq.question}
+                <span aria-hidden="true">+</span>
+              </summary>
+              <p>{faq.answer}</p>
+            </>
+          </details>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section theme="forest" class="closing-cta">
+    <div data-reveal>
+      <p class="label">Have a website problem?</p><h2>Let’s make the next version clearer.</h2><p
+        class="lead"
+      >
+        Tell us what is not working, what you are trying to change, or what you need to launch. We
+        will come back with a useful next step.
+      </p><Button href={integrations.booking.url} size="large">Book a call</Button>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .hero__grid {
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+  .hero__copy {
+    max-width: 42rem;
+  }
+  .hero h1 {
+    max-width: 10ch;
+    margin-block: var(--space-m) var(--space-l);
+    color: var(--on-surface);
+  }
+  .hero .lead {
+    max-width: 38rem;
+    color: var(--on-surface-muted);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    margin-block-start: var(--space-xl);
+  }
+  .text-link {
+    color: var(--on-surface);
+    text-decoration-color: var(--accent);
+    text-underline-offset: 0.35em;
+  }
+  .hero__note {
+    margin-block-start: var(--space-m);
+    color: var(--on-surface-muted);
+    font-size: var(--step--1);
+  }
+  .hero__visual {
+    min-height: 22rem;
+    position: relative;
+    display: grid;
+    place-items: center;
+    border: var(--rule-width) solid var(--rule);
+    background: var(--surface-raised);
+    overflow: hidden;
+  }
+  .hero__visual :global(.grid-motif) {
+    width: 100%;
+    height: 100%;
+    min-height: 22rem;
+  }
+  .hero__stamp {
+    position: absolute;
+    inset: auto var(--space-m) var(--space-m);
+    display: flex;
+    justify-content: space-between;
+    color: var(--on-surface-muted);
+    font: var(--step--2) var(--font-mono);
+    letter-spacing: var(--tracking-label);
+  }
+  .hero-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-s);
+    margin: var(--space-3xl) 0 0;
+    padding: var(--space-m) 0 0;
+    border-top: var(--rule-width) solid var(--rule);
+  }
+  .hero-facts dt {
+    color: var(--on-surface-muted);
+    font: var(--step--2) var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+  .hero-facts dd {
+    margin-block-start: var(--space-2xs);
+    color: var(--on-surface);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+  }
+  .offer-grid,
+  .capability-grid,
+  .trust-grid,
+  .proof-grid {
+    display: grid;
+    gap: var(--space-m);
+  }
+  .offer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-m);
+    padding: var(--space-l);
+    border: var(--rule-width) solid var(--rule);
+    background: var(--surface-raised);
+  }
+  .offer--featured {
+    border-color: var(--accent);
+    box-shadow: inset 0 var(--space-2xs) 0 var(--accent);
+  }
+  .offer__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .offer__badge {
+    padding: 0.35rem 0.55rem;
+    background: var(--accent);
+    color: var(--hm-black);
+    font: var(--step--2) var(--font-mono);
+    text-transform: uppercase;
+  }
+  .offer h3 {
+    font-size: var(--step-2);
+  }
+  .offer__summary,
+  .offer__best,
+  .capability p,
+  .trust-card p,
+  .proof-grid p {
+    color: var(--on-surface-muted);
+  }
+  .offer__best {
+    font-size: var(--step--1);
+  }
+  .offer__best strong {
+    color: var(--on-surface);
+  }
+  .check-list {
+    display: grid;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--on-surface-muted);
+    font-size: var(--step--1);
+  }
+  .check-list li {
+    display: grid;
+    grid-template-columns: 1rem 1fr;
+    gap: var(--space-2xs);
+  }
+  .check-list li::before {
+    content: '↗';
+    color: var(--accent);
+  }
+  .offer .btn {
+    margin-block-start: auto;
+    align-self: flex-start;
+  }
+  .capability-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .capability {
+    padding-block: var(--space-m);
+    border-top: var(--rule-width) solid var(--rule);
+  }
+  .capability h3 {
+    margin-block: var(--space-s) var(--space-2xs);
+  }
+  .trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .trust-card {
+    padding: var(--space-l);
+    border: var(--rule-width) solid var(--rule);
+    background: var(--surface-raised);
+  }
+  .trust-card h3 {
+    margin-block-end: var(--space-s);
+  }
+  .trust-card .check-list {
+    margin-block-start: var(--space-l);
+  }
+  .assurance {
+    display: flex;
+    gap: var(--space-s);
+    margin-block-start: var(--space-xl);
+    max-width: 48rem;
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: var(--leading-snug);
+  }
+  .assurance span {
+    color: var(--accent);
+  }
+  .process-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .process-step {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: var(--space-m);
+    padding-block: var(--space-l);
+    border-top: var(--rule-width) solid var(--rule);
+  }
+  .process-step__number {
+    color: var(--accent);
+    font: var(--step--1) var(--font-mono);
+  }
+  .process-step h3 {
+    margin-block-end: var(--space-2xs);
+  }
+  .process-step p {
+    max-width: 48rem;
+    color: var(--on-surface-muted);
+  }
+  .process-step__supervision {
+    margin-block-start: var(--space-s);
+    font-size: var(--step--1);
+  }
+  .process-step__supervision strong {
+    color: var(--on-surface);
+  }
+  .proof-grid {
+    grid-template-columns: repeat(3, 1fr);
+    margin-block-end: var(--space-xl);
+  }
+  .proof-grid article {
+    padding-block: var(--space-m);
+    border-top: var(--rule-width) solid var(--rule);
+  }
+  .proof-mark {
+    display: block;
+    margin-block-end: var(--space-l);
+    color: var(--accent);
+    font-size: var(--step-2);
+  }
+  .proof-grid h3 {
+    margin-block-end: var(--space-2xs);
+  }
+  .faq-list {
+    max-width: 52rem;
+  }
+  .faq-list details {
+    border-top: var(--rule-width) solid var(--rule);
+  }
+  .faq-list details:last-child {
+    border-bottom: var(--rule-width) solid var(--rule);
+  }
+  .faq-list summary {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding: var(--space-m) 0;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    list-style: none;
+  }
+  .faq-list summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-list summary span {
+    color: var(--accent);
+  }
+  .faq-list details[open] summary span {
+    transform: rotate(45deg);
+  }
+  .faq-list details p {
+    max-width: 48rem;
+    padding: 0 3rem var(--space-l) 0;
+    color: var(--on-surface-muted);
+  }
+  .closing-cta h2 {
+    max-width: 16ch;
+    margin-block: var(--space-m);
+    color: var(--on-surface);
+  }
+  .closing-cta .lead {
+    margin-block-end: var(--space-xl);
+    color: var(--on-surface-muted);
+  }
+  @media (min-width: 48rem) {
+    .hero__grid {
+      grid-template-columns: 1.05fr 0.95fr;
+    }
+    .offer-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-width: 47.99rem) {
+    .hero-facts {
+      grid-template-columns: 1fr;
+    }
+    .hero-facts dd {
+      margin-block-end: var(--space-s);
+    }
+    .capability-grid,
+    .trust-grid,
+    .proof-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
