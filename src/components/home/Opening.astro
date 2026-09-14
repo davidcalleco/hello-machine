@@ -1,0 +1,124 @@
+---
+/**
+ * 01 Position — the page's opening declaration.
+ *
+ * One composition decision: the statement takes the top band of the field, and
+ * the band under it is split into two columns that both carry content — the
+ * standfirst and the actions on the left, the working note on the right. The
+ * right of the page is never occupied by a heading with nothing beside it, and
+ * nothing is placed with a percentage indent: every part starts on a column of
+ * the field grid.
+ */
+import Sheet from '../Sheet.astro';
+import Action from '../primitives/Action.astro';
+import Label from '../primitives/Label.astro';
+import Note from '../primitives/Note.astro';
+import Statement from '../primitives/Statement.astro';
+import { hero } from '../../data/home';
+import { integrations } from '../../lib/site';
+---
+
+<Sheet id="position" size="open" labelledby="position-title">
+  <div class="opening field-grid">
+    <div class="opening__head">
+      <Label class="opening__label" index="01" text="Position" tone="ink" />
+      <Statement statement={hero.statement} as="h1" size={1} tone="editorial" id="position-title" />
+    </div>
+
+    <div class="opening__standfirst">
+      <p class="opening__lead">{hero.standfirst}</p>
+      <div class="opening__actions">
+        <Action href={integrations.booking.url} size="large">Book a call</Action>
+        <Action href="#offer" variant="line">The three ways to work</Action>
+      </div>
+    </div>
+
+    <Note class="opening__note" label={hero.note.label} rule="side">{hero.note.body}</Note>
+
+    <dl class="opening__meta">
+      {
+        hero.meta.map((entry) => (
+          <div class="opening__meta-cell">
+            <dt class="label">{entry.label}</dt>
+            <dd class="opening__meta-value">{entry.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</Sheet>
+
+<style>
+  .opening {
+    --field-row-gap: var(--space-2xl);
+  }
+
+  .opening__label {
+    margin-block-end: var(--space-m);
+  }
+
+  .opening__lead {
+    max-width: 34ch;
+    font-size: var(--step-1);
+    line-height: 1.3;
+    letter-spacing: var(--track-tight);
+    color: var(--ink-soft);
+  }
+
+  .opening__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    margin-block-start: var(--space-l);
+  }
+
+  .opening__meta {
+    display: grid;
+    gap: var(--space-m);
+    margin: 0;
+    padding-block-start: var(--space-s);
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .opening__meta dt {
+    margin-block-end: var(--space-3xs);
+  }
+
+  .opening__meta-value {
+    margin: 0;
+    font-size: var(--step--1);
+    line-height: 1.4;
+    letter-spacing: var(--track-tight);
+  }
+
+  @media (min-width: 48rem) {
+    /* The metadata strip takes three four-column groups, so its cells line up
+       with the columns of every section below it. */
+    .opening__meta {
+      grid-template-columns: subgrid;
+      column-gap: var(--grid-gap);
+    }
+
+    .opening__meta-cell {
+      grid-column: span 4;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .opening__head {
+      grid-column: 1 / span 9;
+      grid-row: 1;
+    }
+
+    .opening__standfirst {
+      grid-column: 1 / span 5;
+      grid-row: 2;
+    }
+
+    .opening__note {
+      grid-column: 9 / -1;
+      grid-row: 2;
+    }
+  }
+</style>

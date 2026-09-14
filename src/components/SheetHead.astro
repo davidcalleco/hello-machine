@@ -1,15 +1,17 @@
 ---
 /**
- * The opening of a sheet: index, label, statement, and an optional note in
- * the margin.
+ * The opening of a sheet: index, label, statement, and an optional note.
  *
- * Three layouts, so sections share an alignment system without sharing a
- * silhouette:
+ * One alignment, everywhere: the label and the statement start on column 1 of
+ * the field grid, flush with the page edge and with the content below. The
+ * only asymmetry is earned — when a section supplies a note, it takes the last
+ * three columns, so the right of the page is occupied by something to read
+ * rather than by a heading pushed into empty space.
  *
- *   split   label left, statement centre, note right — the catalogue header
- *   stack   label above, statement below, note underneath — for dense sheets
- *   offset  label at the margin, statement indented into the field — for the
- *           quiet sheets that need a change of pace
+ *   split   note in the right columns, beside the statement (default)
+ *   stack   note directly under the statement, in the text column
+ *
+ * `offset` is kept as an alias of `split` so existing pages keep working.
  */
 import Label from './primitives/Label.astro';
 import Statement from './primitives/Statement.astro';
@@ -43,12 +45,21 @@ const {
   layout = 'split',
   class: className,
 } = Astro.props;
+
+const placement = layout === 'stack' ? 'stack' : 'split';
 ---
 
-<header class:list={['sheet-head', `sheet-head--${layout}`, className]}>
-  <Label class="sheet-head__label" index={index} text={label} tone="ink" />
-
+<header
+  class:list={[
+    'sheet-head',
+    'field-grid',
+    `sheet-head--${placement}`,
+    { 'sheet-head--noted': Boolean(note) },
+    className,
+  ]}
+>
   <div class="sheet-head__body">
+    <Label class="sheet-head__label" index={index} text={label} tone="ink" />
     <Statement statement={statement} as={as} size={size} tone={tone} id={id} />
     {lead && <p class="lead sheet-head__lead">{lead}</p>}
   </div>
@@ -58,56 +69,43 @@ const {
 
 <style>
   .sheet-head {
-    display: grid;
-    gap: var(--space-m);
+    /* The section divider. The one rule at the top of a sheet — the content
+       block below brings its own, and the two are a full step apart. */
     border-block-start: var(--rule-heavy) solid var(--rule-strong);
     padding-block-start: var(--space-s);
-    margin-block-end: var(--space-xl);
+    margin-block-end: var(--space-2xl);
+    --field-row-gap: var(--space-l);
+  }
+
+  .sheet-head__label {
+    margin-block-end: var(--space-m);
   }
 
   .sheet-head__lead {
     margin-block-start: var(--space-m);
+    max-width: 46ch;
     color: var(--ink-soft);
   }
 
-  .sheet-head__note {
-    align-self: end;
-  }
-
   @media (min-width: 60rem) {
-    .sheet-head--split {
-      grid-template-columns: 16% minmax(0, 1fr) 22%;
-      column-gap: var(--space-l);
-      align-items: start;
+    .sheet-head__body {
+      grid-column: 1 / span 8;
     }
 
-    .sheet-head--split .sheet-head__note {
-      padding-block-start: 0.4em;
+    .sheet-head--noted .sheet-head__body {
+      grid-column: 1 / span 7;
     }
 
-    .sheet-head--stack {
-      grid-template-columns: minmax(0, 1fr) 22%;
-      column-gap: var(--space-2xl);
+    .sheet-head--split.sheet-head--noted .sheet-head__note {
+      grid-column: 9 / -1;
+      /* Optical alignment with the statement's first baseline rather than
+         with the top of its line box. */
+      padding-block-start: 0.45em;
     }
 
-    .sheet-head--stack .sheet-head__label {
-      grid-column: 1 / -1;
-    }
-
-    .sheet-head--offset {
-      grid-template-columns: 16% minmax(0, 1fr);
-      column-gap: var(--space-l);
-    }
-
-    .sheet-head--offset .sheet-head__body {
-      /* Pushed one further column in: the sheet changes pace here. */
-      padding-inline-start: 12%;
-    }
-
-    .sheet-head--offset .sheet-head__note {
-      grid-column: 2;
-      padding-inline-start: 12%;
-      margin-block-start: var(--space-m);
+    .sheet-head--stack .sheet-head__body,
+    .sheet-head--stack .sheet-head__note {
+      grid-column: 1 / span 8;
     }
   }
 </style>

@@ -262,12 +262,43 @@ b {
    Layout primitives
    ========================================================================= */
 
-/* The sheet's printable area. */
+/* The sheet's printable area. Every field edge on the site — header, rules,
+   sheets, footer — is this box, so the page has exactly two vertical edges. */
 .spread {
   width: 100%;
   max-width: var(--width-field);
   margin-inline: auto;
   padding-inline: var(--gutter);
+}
+
+/* =========================================================================
+   The field grid
+   -------------------------------------------------------------------------
+   Twelve columns inside the spread. One grid for the whole site: the header,
+   every sheet head and every section place their parts on it.
+
+   Below 48rem everything is a single column — placement is opt-in, declared
+   by each section in its own breakpoint, never by an arbitrary percentage
+   indent. Items span whole columns; an element that sits off the text column
+   still starts on a grid line.
+   ========================================================================= */
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--grid-gap);
+  row-gap: var(--field-row-gap, var(--space-xl));
+  align-items: start;
+}
+
+/* Zero specificity: a section's own placement rule always wins. */
+:where(.field-grid) > * {
+  grid-column: 1 / -1;
+}
+
+/* The closing action of a section, one step below the block it belongs to. */
+.section-action {
+  margin-block-start: var(--space-xl);
 }
 
 .stack {

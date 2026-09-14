@@ -1,16 +1,25 @@
 ---
 /**
- * The selection instrument: choosing an index row changes the explanation
- * beside it.
+ * The offer, as an index: three rows to compare, one explanation area below
+ * them.
  *
- * Static-first, as the approved interaction contract requires. Without
- * JavaScript this is a list of in-page links above three fully-written
- * entries — every word is present and reachable. The script below upgrades it
- * to a tablist: same content, less scrolling, keyboard arrow navigation, and
- * a selected state carried by the highlighter colour rather than by motion.
+ * Composition rules this obeys, because the previous version broke all of
+ * them:
  *
- * Nothing here animates. Reduced-motion users lose nothing because there is
- * nothing to lose.
+ *   - One rule per boundary. A heavy rule opens the index, hairlines separate
+ *     the three rows, a heavy rule closes it and opens the explanation. No
+ *     rule sits directly above another, and no rule is decorative.
+ *   - Everything lands on the twelve-column field grid: index number, name,
+ *     outcome and mark each own known columns, and the explanation's three
+ *     groups sit under them.
+ *   - The selected row is unmistakable — highlighter fill plus an ink frame —
+ *     and the state costs no layout movement, so nothing jitters under the
+ *     pointer.
+ *
+ * Static-first. Without JavaScript this is a list of in-page links above three
+ * fully-written entries: every word is present and reachable. The script
+ * upgrades it to a tablist — same content, one entry at a time, arrow-key
+ * navigation. Nothing animates except a colour.
  */
 import Action from '../primitives/Action.astro';
 import type { Engagement } from '../../data/types';
@@ -24,55 +33,65 @@ interface Props {
 const { engagements, id = 'engagement' } = Astro.props;
 ---
 
-<div class="selector" data-selector>
-  <div class="selector__list" data-tablist>
+<div class="offer" data-selector>
+  <div class="offer__index" data-tablist>
     {
       engagements.map((engagement) => (
         <a
-          class="selector__tab"
+          class="offer__row"
           id={`${id}-tab-${engagement.id}`}
           href={`#${id}-panel-${engagement.id}`}
           data-tab={engagement.id}
         >
-          <span class="selector__tab-index" aria-hidden="true">
+          <span class="offer__row-index" aria-hidden="true">
             {engagement.index}
           </span>
-          <span class="selector__tab-name">{engagement.name}</span>
-          <span class="selector__tab-line">{engagement.line}</span>
+          <span class="offer__row-name">{engagement.name}</span>
+          <span class="offer__row-line">{engagement.line}</span>
+          <span class="offer__row-mark" aria-hidden="true">
+            →
+          </span>
         </a>
       ))
     }
   </div>
 
-  <div class="selector__panels">
+  <div class="offer__explanation">
     {
       engagements.map((engagement) => (
         <article
-          class="selector__panel"
+          class="offer__panel field-grid"
           id={`${id}-panel-${engagement.id}`}
           data-panel={engagement.id}
         >
-          <h3 class="selector__panel-title">
-            <span class="label selector__panel-index">{engagement.index} / Best for</span>
-            {engagement.bestFor}
-          </h3>
+          <div class="offer__panel-id">
+            <p class="label offer__panel-label">{engagement.index} / Selected</p>
+            <h3 class="offer__panel-title">{engagement.name}</h3>
+            <p class="offer__best">
+              <span class="label offer__best-label">Best for</span>
+              {engagement.bestFor}
+            </p>
+          </div>
 
-          <p class="selector__summary">{engagement.summary}</p>
+          <div class="offer__panel-main">
+            <p class="offer__summary">{engagement.summary}</p>
+            <Action class="offer__action" href={engagement.action.href} variant="ghost">
+              {engagement.action.label}
+            </Action>
+          </div>
 
-          <ul class="selector__includes" role="list">
-            {engagement.includes.map((item) => (
-              <li>{item}</li>
-            ))}
-          </ul>
-
-          <p class="selector__boundary">
-            <span class="label selector__boundary-label">The boundary</span>
-            {engagement.boundary}
-          </p>
-
-          <Action href={engagement.action.href} variant="line">
-            {engagement.action.label}
-          </Action>
+          <div class="offer__panel-side">
+            <p class="label offer__side-label">What it covers</p>
+            <ul class="offer__includes" role="list">
+              {engagement.includes.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+            <p class="offer__boundary">
+              <span class="label offer__boundary-label">The boundary</span>
+              {engagement.boundary}
+            </p>
+          </div>
         </article>
       ))
     }
@@ -142,127 +161,167 @@ const { engagements, id = 'engagement' } = Astro.props;
 </script>
 
 <style>
-  .selector {
+  /* =====================================================================
+     The index: three rows to choose between
+     ===================================================================== */
+
+  .offer__index {
     display: grid;
-    gap: var(--space-xl);
     border-block-start: var(--rule-heavy) solid var(--rule-strong);
   }
 
-  /* ---- The index ---- */
-
-  .selector__list {
+  .offer__row {
     display: grid;
-  }
-
-  .selector__tab {
-    display: grid;
-    grid-template-columns: 2.75rem minmax(0, 1fr);
+    grid-template-columns: 2.5rem minmax(0, 1fr) 1.5rem;
     column-gap: var(--space-s);
+    align-items: baseline;
     padding-block: var(--space-m);
     border-block-end: var(--rule-hair) solid var(--rule);
     color: var(--ink);
     text-decoration: none;
     cursor: pointer;
-    transition:
-      background-color var(--duration-fast) var(--ease),
-      padding-inline var(--duration-fast) var(--ease);
+    /* Colour only. The row never moves, grows or reflows when it is chosen. */
+    transition: background-color var(--duration-fast) var(--ease);
   }
 
-  .selector__tab-index {
+  .offer__row-index {
     font-family: var(--font-mono);
     font-size: var(--step--2);
     letter-spacing: var(--track-label);
     color: var(--signal);
-    padding-block-start: 0.5em;
   }
 
-  .selector__tab-name {
-    font-size: var(--step-4);
+  .offer__row-name {
+    font-size: var(--step-3);
     font-weight: 500;
-    line-height: var(--leading-display);
-    letter-spacing: var(--track-display);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
   }
 
-  .selector__tab-line {
+  .offer__row-line {
     grid-column: 2;
     margin-block-start: var(--space-2xs);
     font-size: var(--step--1);
+    line-height: 1.4;
     color: var(--ink-soft);
   }
 
-  .selector__tab[aria-selected='true'],
-  .selector__tab:focus-visible {
-    background-color: var(--select);
-    color: var(--on-select);
+  .offer__row-mark {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    font-size: var(--step-0);
+    color: var(--ink-soft);
   }
 
-  .selector__tab[aria-selected='true'] .selector__tab-index,
-  .selector__tab[aria-selected='true'] .selector__tab-line,
-  .selector__tab:focus-visible .selector__tab-index,
-  .selector__tab:focus-visible .selector__tab-line {
+  /* The selected row: the highlighter, plus an ink frame so the state survives
+     on a printout, in high contrast, and for anyone who does not read the
+     colour. Hover is the fill alone. */
+  .offer__row[aria-selected='true'] {
+    background-color: var(--select);
+    color: var(--on-select);
+    box-shadow: inset 0 0 0 var(--rule-heavy) var(--ink);
+  }
+
+  .offer__row[aria-selected='true'] .offer__row-index,
+  .offer__row[aria-selected='true'] .offer__row-line,
+  .offer__row[aria-selected='true'] .offer__row-mark {
     color: var(--ink);
   }
 
   @media (hover: hover) {
-    .selector__tab:hover {
+    .offer__row:hover {
       background-color: var(--select);
       color: var(--on-select);
     }
 
-    .selector__tab:hover .selector__tab-index,
-    .selector__tab:hover .selector__tab-line {
+    .offer__row:hover .offer__row-index,
+    .offer__row:hover .offer__row-line,
+    .offer__row:hover .offer__row-mark {
       color: var(--ink);
     }
   }
 
-  /* ---- The response ---- */
+  /* =====================================================================
+     The explanation: one area, always in the same place
+     ===================================================================== */
 
-  .selector__panels {
+  .offer__explanation {
     display: grid;
     gap: var(--space-2xl);
+    margin-block-start: var(--space-xl);
   }
 
-  .selector__panel {
-    display: grid;
-    align-content: start;
-    gap: var(--space-m);
-  }
-
-  /* Once enhanced, only the selected entry is in flow — and the panels stop
-     needing their own separating rules. */
-  [data-enhanced] .selector__panels {
+  /* Unenhanced, all three entries are written out, so each needs its own
+     opening rule. Enhanced, there is only ever one — and the rule belongs to
+     the area, not to the entry. */
+  [data-enhanced] .offer__explanation {
     gap: 0;
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+    padding-block-start: var(--space-l);
   }
 
-  .selector__panel-title {
+  .offer__panel {
+    --field-row-gap: var(--space-l);
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+    padding-block-start: var(--space-l);
+  }
+
+  [data-enhanced] .offer__panel {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .offer__panel-label {
+    margin-block-end: var(--space-2xs);
+  }
+
+  .offer__panel-title {
     font-size: var(--step-2);
     font-weight: 500;
     line-height: var(--leading-tight);
     letter-spacing: var(--track-heading);
-    text-wrap: balance;
   }
 
-  .selector__panel-index {
+  .offer__best {
+    margin-block-start: var(--space-m);
+    max-width: 30ch;
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .offer__best-label {
+    display: block;
+    margin-block-end: var(--space-3xs);
+    color: var(--editorial);
+  }
+
+  .offer__summary {
+    max-width: 46ch;
+    font-size: var(--step-0);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  .offer__action {
+    margin-block-start: var(--space-l);
+  }
+
+  .offer__side-label,
+  .offer__boundary-label {
     display: block;
     margin-block-end: var(--space-2xs);
   }
 
-  .selector__summary {
-    max-width: 44ch;
-    color: var(--ink-soft);
-  }
-
-  .selector__includes {
+  .offer__includes {
     display: grid;
     gap: var(--space-2xs);
     margin: 0;
     padding: 0;
-    max-width: 44ch;
-    border-block-start: var(--rule-hair) solid var(--rule);
-    padding-block-start: var(--space-s);
+    max-width: 42ch;
   }
 
-  .selector__includes > li {
+  .offer__includes > li {
     display: grid;
     grid-template-columns: 1rem minmax(0, 1fr);
     gap: var(--space-2xs);
@@ -270,50 +329,68 @@ const { engagements, id = 'engagement' } = Astro.props;
     line-height: 1.4;
   }
 
-  .selector__includes > li::before {
+  .offer__includes > li::before {
     content: '+';
     font-family: var(--font-mono);
     color: var(--signal);
   }
 
-  .selector__boundary {
-    max-width: 44ch;
-    padding-inline-start: var(--space-m);
-    border-inline-start: var(--rule-heavy) solid var(--editorial);
+  .offer__boundary {
+    margin-block-start: var(--space-l);
+    max-width: 42ch;
     font-size: var(--step--1);
     line-height: 1.4;
+    color: var(--ink-soft);
   }
 
-  .selector__boundary-label {
-    display: block;
-    margin-block-end: var(--space-3xs);
-  }
-
-  .selector__panel :global(.action) {
-    justify-self: start;
+  .offer__boundary-label {
+    color: var(--editorial);
   }
 
   @media (min-width: 60rem) {
-    .selector {
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-      column-gap: var(--space-2xl);
-    }
-
-    .selector__tab {
-      grid-template-columns: 4.5rem minmax(0, 1fr);
-      column-gap: var(--space-l);
+    /* The row's parts take known columns of the field grid, so the index
+       reads down as three straight columns rather than as three paragraphs. */
+    .offer__row {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--grid-gap);
+      align-items: center;
       padding-block: var(--space-l);
     }
 
-    .selector__tab[aria-selected='true'],
-    .selector__tab:hover,
-    .selector__tab:focus-visible {
-      padding-inline: var(--space-s);
-      margin-inline: calc(var(--space-s) * -1);
+    .offer__row-index {
+      grid-column: 1;
     }
 
-    .selector__panels {
-      padding-block-start: var(--space-l);
+    .offer__row-name {
+      grid-column: 2 / span 5;
+      font-size: var(--step-4);
+      line-height: var(--leading-display);
+      letter-spacing: var(--track-display);
+    }
+
+    .offer__row-line {
+      grid-column: 7 / span 5;
+      grid-row: 1;
+      margin-block-start: 0;
+      max-width: 34ch;
+    }
+
+    .offer__row-mark {
+      grid-column: 12;
+      font-size: var(--step-1);
+    }
+
+    /* Three groups under the three columns above them. */
+    .offer__panel-id {
+      grid-column: 1 / span 3;
+    }
+
+    .offer__panel-main {
+      grid-column: 4 / span 5;
+    }
+
+    .offer__panel-side {
+      grid-column: 9 / span 4;
     }
   }
 </style>

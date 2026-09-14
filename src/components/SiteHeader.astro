@@ -1,10 +1,15 @@
 ---
 /**
  * The header is the sheet's first line, not a utility bar bolted above it:
- * same mono handwriting, same index numbers, same hairline rules, same
- * selection colour as the catalogue rows further down the page.
+ * same field edges as every sheet below it, same mono handwriting, same index
+ * numbers, same selection colour as the offer index further down the page.
  *
- * The mobile navigation is a native <details> disclosure, so it is keyboard
+ * It is laid out as one band with three known parts — the wordmark on the
+ * page's left edge, the navigation distributed across the middle as equal
+ * index cells, and language + booking sitting on the right edge. Nothing
+ * floats; every part starts or ends on a field edge.
+ *
+ * The compact navigation is a native <details> disclosure, so it is keyboard
  * operable and fully functional with zero JavaScript. The script below only
  * adds conveniences (close on Escape, close after following a link).
  */
@@ -31,7 +36,7 @@ const pathname = Astro.url.pathname;
           nav.map((item) => {
             const current = isCurrent(item.href, pathname);
             return (
-              <li>
+              <li class="masthead__item">
                 <a
                   class="masthead__link"
                   href={item.href}
@@ -49,7 +54,7 @@ const pathname = Astro.url.pathname;
       </ul>
     </nav>
 
-    <div class="masthead__actions">
+    <div class="masthead__end">
       <LanguageToggle class="masthead__lang" />
       <Action href={integrations.booking.url} class="masthead__cta">Book a call</Action>
 
@@ -59,29 +64,31 @@ const pathname = Astro.url.pathname;
           <span class="menu__rules" aria-hidden="true"></span>
         </summary>
         <div class="menu__panel tone-paper">
-          <nav aria-label="Primary, compact">
-            <ul class="menu__list" role="list">
-              {
-                nav.map((item) => (
-                  <li>
-                    <a
-                      class="menu__link"
-                      href={item.href}
-                      aria-current={isCurrent(item.href, pathname) ? 'page' : undefined}
-                    >
-                      <span class="menu__index" aria-hidden="true">
-                        {item.index}
-                      </span>
-                      <span>{item.label}</span>
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </nav>
-          <div class="menu__foot">
-            <LanguageToggle />
-            <Action href={integrations.booking.url} size="large">Book a call</Action>
+          <div class="spread menu__panel-inner">
+            <nav aria-label="Primary, compact">
+              <ul class="menu__list" role="list">
+                {
+                  nav.map((item) => (
+                    <li>
+                      <a
+                        class="menu__link"
+                        href={item.href}
+                        aria-current={isCurrent(item.href, pathname) ? 'page' : undefined}
+                      >
+                        <span class="menu__index" aria-hidden="true">
+                          {item.index}
+                        </span>
+                        <span class="menu__label">{item.label}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </nav>
+            <div class="menu__foot">
+              <LanguageToggle />
+              <Action href={integrations.booking.url} size="large">Book a call</Action>
+            </div>
           </div>
         </div>
       </details>
@@ -119,55 +126,65 @@ const pathname = Astro.url.pathname;
   }
 
   .masthead__inner {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-m);
+    column-gap: var(--space-m);
     min-height: var(--header-height);
   }
 
+  /* The wordmark's registration square is the page's left edge: it sits on the
+     gutter, in line with every rule and every first column below it. */
   .masthead__wordmark {
-    margin-inline-end: auto;
+    justify-self: start;
   }
 
   /* ---- Wide navigation ---- */
 
   .masthead__nav {
     display: none;
+    align-self: stretch;
   }
 
   .masthead__list {
-    display: flex;
-    align-items: stretch;
+    display: grid;
+    /* Equal cells across the width the nav is given: a navigation system, not
+       a cluster pushed against one end of the band. */
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    height: 100%;
     margin: 0;
     padding: 0;
   }
 
+  .masthead__item {
+    display: flex;
+    /* Hairline verticals turn the nav into a row of index cells — the same
+       device the offer index uses further down the page. The block is closed
+       at both ends, so no rule is left hanging beside the wordmark. */
+    border-inline-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .masthead__item:last-child {
+    border-inline-end: var(--rule-hair) solid var(--rule);
+  }
+
   .masthead__link {
     display: flex;
-    align-items: baseline;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
     gap: var(--space-2xs);
-    height: var(--header-height);
-    padding-inline: var(--space-m);
-    /* Hairline verticals turn the nav into a row of index cells — the same
-       device the catalogue rows use further down the page. */
-    border-inline-start: var(--rule-hair) solid var(--rule);
+    padding-inline: var(--space-xs);
     font-size: var(--step--1);
     letter-spacing: var(--track-tight);
+    text-align: center;
     text-decoration: none;
     color: var(--ink);
     transition: background-color var(--duration-fast) var(--ease);
   }
 
-  .masthead__list li:last-child .masthead__link {
-    border-inline-end: var(--rule-hair) solid var(--rule);
-  }
-
-  .masthead__label {
-    align-self: center;
-  }
-
   .masthead__index {
-    align-self: center;
     font-family: var(--font-mono);
     font-size: var(--step--2);
     letter-spacing: var(--track-label);
@@ -195,9 +212,12 @@ const pathname = Astro.url.pathname;
     }
   }
 
-  .masthead__actions {
+  /* ---- The right edge ---- */
+
+  .masthead__end {
     display: flex;
     align-items: center;
+    justify-self: end;
     gap: var(--space-m);
   }
 
@@ -213,7 +233,8 @@ const pathname = Astro.url.pathname;
     align-items: center;
     gap: var(--space-2xs);
     min-height: 2.75rem;
-    padding-inline: var(--space-3xs);
+    /* Flush with the page's right edge; the padding hangs inward only. */
+    padding-inline-start: var(--space-s);
     font-family: var(--font-mono);
     font-size: var(--step--2);
     letter-spacing: var(--track-label);
@@ -242,7 +263,7 @@ const pathname = Astro.url.pathname;
     position: absolute;
     inset-inline: 0;
     inset-block-start: 100%;
-    padding: var(--space-s) var(--gutter) var(--space-xl);
+    padding-block: var(--space-s) var(--space-xl);
     background-color: var(--field);
     color: var(--ink);
     border-block-end: var(--rule-heavy) solid var(--rule-strong);
@@ -255,9 +276,10 @@ const pathname = Astro.url.pathname;
   }
 
   .menu__link {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
     align-items: baseline;
-    gap: var(--space-s);
+    column-gap: var(--space-s);
     padding-block: var(--space-s);
     border-block-end: var(--rule-hair) solid var(--rule);
     font-size: var(--step-2);
@@ -267,7 +289,8 @@ const pathname = Astro.url.pathname;
   }
 
   .menu__link[aria-current='page'] {
-    color: var(--signal);
+    background-color: var(--select);
+    color: var(--on-select);
   }
 
   .menu__index {
@@ -277,11 +300,14 @@ const pathname = Astro.url.pathname;
     color: var(--signal);
   }
 
+  .menu__link[aria-current='page'] .menu__index {
+    color: var(--ink);
+  }
+
   .menu__foot {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    display: grid;
     gap: var(--space-m);
+    justify-items: start;
     margin-block-start: var(--space-l);
   }
 
@@ -290,19 +316,18 @@ const pathname = Astro.url.pathname;
   }
 
   @media (min-width: 64rem) {
-    .masthead__nav,
+    .masthead__inner {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      column-gap: var(--space-l);
+    }
+
+    .masthead__nav {
+      display: block;
+    }
+
     .masthead__lang,
     .masthead__cta {
       display: flex;
-    }
-
-    .masthead__inner {
-      gap: 0;
-    }
-
-    .masthead__actions {
-      gap: var(--space-m);
-      padding-inline-start: var(--space-m);
     }
 
     .menu {

@@ -66,15 +66,16 @@ const {
     padding-block: var(--sheet-space-open);
   }
 
-  /* The rule sits inside the field width so it aligns with the content grid
-     rather than running off to the browser edge. */
+  /* The rule spans the field exactly: the same box as `.spread`'s content,
+     so it starts and ends on the page's two vertical edges instead of
+     overhanging them by a gutter. */
   .sheet--rule-hair::before,
   .sheet--rule-heavy::before {
     content: '';
     position: absolute;
     inset-block-start: 0;
-    inset-inline: var(--gutter);
-    max-width: var(--width-field);
+    inset-inline: 0;
+    width: calc(min(100%, var(--width-field)) - var(--gutter) * 2);
     margin-inline: auto;
     background-color: var(--rule-strong);
   }

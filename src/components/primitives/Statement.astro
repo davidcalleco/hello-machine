@@ -46,5 +46,24 @@ const {
     /* Statements are cropped tight on purpose; the descenders of the serif
        italic would otherwise be clipped by the line box above. */
     padding-block-end: 0.06em;
+    /* Display type breaks badly when it is allowed to run the full width of
+       the field: a long first line and then one orphaned word. A measure per
+       size — tighter the larger the type — plus balanced wrapping gives every
+       statement two or three even lines instead. Sections that need a
+       different measure set --statement-measure; nothing is ever clipped. */
+    max-width: var(--statement-measure, 24ch);
+    text-wrap: balance;
+  }
+
+  .display-1 {
+    --statement-measure: 11ch;
+  }
+
+  .display-2 {
+    --statement-measure: 14ch;
+  }
+
+  .display-3 {
+    --statement-measure: 18ch;
   }
 </style>
