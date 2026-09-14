@@ -1,0 +1,93 @@
+---
+/**
+ * Language toggle. Spanish is planned but not built, so its control is
+ * rendered as a disabled, announced placeholder rather than a dead link —
+ * when /es/ ships, flip `available` in src/lib/site.ts and nothing else
+ * needs to change.
+ */
+import { site } from '../lib/site';
+
+interface Props {
+  current?: string;
+  class?: string;
+}
+
+const { current = site.locale, class: className } = Astro.props;
+---
+
+<nav class:list={['lang', className]} aria-label="Language">
+  <ul class="lang__list" role="list">
+    {
+      site.languages.map((language) => (
+        <li class="lang__item">
+          {language.available ? (
+            <a
+              class="lang__link"
+              href={language.href}
+              hreflang={language.code}
+              lang={language.code}
+              aria-current={language.code === current ? 'true' : undefined}
+            >
+              <span class="visually-hidden">{language.name}</span>
+              <span aria-hidden="true">{language.label}</span>
+            </a>
+          ) : (
+            <span class="lang__link lang__link--pending" aria-disabled="true">
+              <span class="visually-hidden">{language.name} — coming soon</span>
+              <span aria-hidden="true">{language.label}</span>
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .lang__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lang__item + .lang__item::before {
+    content: '/';
+    margin-inline-end: var(--space-2xs);
+    color: var(--on-surface-muted);
+  }
+
+  .lang__item {
+    display: flex;
+    align-items: center;
+  }
+
+  .lang__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--space-3xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-label);
+    text-decoration: none;
+    color: var(--on-surface-muted);
+  }
+
+  .lang__link[aria-current='true'] {
+    color: var(--on-surface);
+  }
+
+  .lang__link--pending {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  @media (hover: hover) {
+    a.lang__link:hover {
+      color: var(--on-surface);
+    }
+  }
+</style>

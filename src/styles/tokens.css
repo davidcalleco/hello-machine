@@ -1,0 +1,164 @@
+/* =========================================================================
+   Hello Machine — design tokens
+   =========================================================================
+   Two layers, deliberately:
+
+   1. PRIMITIVES  (--hm-*)   Raw brand values. Five brief colours plus a small
+                             number of documented derivations. Never referenced
+                             directly by components.
+   2. SEMANTICS   (--surface, --on-surface, --accent, …) Set by a theme class
+                             (.theme-paper / .theme-forest / .theme-ink) on a
+                             section. Components only ever read these, so any
+                             component renders correctly on any surface.
+
+   Derivations from the five brief colours are listed in /design/README.md
+   together with their measured contrast ratios.
+   ========================================================================= */
+
+:root {
+  /* ---- Primitive colour ------------------------------------------------ */
+  --hm-black: #000000; /* brief */
+  --hm-paper: #d6d6cd; /* brief — warm off-white */
+  --hm-green: #182928; /* brief — muted deep green */
+  --hm-lime: #bfea88; /* brief — lime accent */
+  --hm-terracotta: #c4513a; /* brief — restrained terracotta accent */
+
+  /* Derived: tints/shades of the brief colours, used for surfaces, hairlines
+     and muted text only. No new hues are introduced. */
+  --hm-paper-raised: #e0e0d9;
+  --hm-paper-sunken: #c9c9bf;
+  --hm-paper-muted: #2f3b39; /* muted text on paper  — 7.9:1 */
+  --hm-green-raised: #21332f;
+  --hm-green-deep: #101c1b;
+  --hm-green-muted: #a6b3a8; /* muted text on green  — 6.9:1 */
+  --hm-ink-raised: #0d0d0c;
+  --hm-ink-muted: #9a9a93; /* muted text on black  — 7.5:1 */
+
+  /* ---- Typeface stacks -------------------------------------------------
+     A licensed display face can be dropped in by changing --font-display
+     alone; everything else scales from the type scale below. */
+  --font-display:
+    ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* ---- Fluid type scale (1.2 minor third → 1.25 at desktop) ------------
+     Each step interpolates between a 320px and a 1440px viewport. */
+  --step--2: clamp(0.694rem, 0.678rem + 0.08vw, 0.75rem);
+  --step--1: clamp(0.833rem, 0.803rem + 0.149vw, 0.938rem);
+  --step-0: clamp(1rem, 0.964rem + 0.179vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.114rem + 0.429vw, 1.5rem);
+  --step-2: clamp(1.44rem, 1.28rem + 0.8vw, 2rem);
+  --step-3: clamp(1.728rem, 1.436rem + 1.46vw, 2.75rem);
+  --step-4: clamp(2.074rem, 1.595rem + 2.394vw, 3.75rem);
+  --step-5: clamp(2.488rem, 1.77rem + 3.589vw, 5rem);
+  --step-6: clamp(2.986rem, 1.982rem + 5.02vw, 6.5rem);
+
+  --leading-tight: 1.04;
+  --leading-snug: 1.15;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.65;
+  --tracking-tight: -0.022em;
+  --tracking-normal: 0;
+  --tracking-label: 0.14em;
+
+  /* ---- Space scale ----------------------------------------------------- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  /* Vertical rhythm between major sections — the single biggest lever on how
+     editorial the page feels, so it is fluid rather than fixed. */
+  --space-section: clamp(3.5rem, 2.2rem + 6.5vw, 8rem);
+
+  /* ---- Layout ---------------------------------------------------------- */
+  --gutter: clamp(1.25rem, 0.8rem + 2.2vw, 3.5rem);
+  --width-content: 78rem; /* outer shell */
+  --width-text: 44rem; /* long-form measure */
+  --width-narrow: 34rem; /* leads and intros */
+  --measure: 68ch;
+
+  /* ---- Lines, radii, motion -------------------------------------------- */
+  --rule-width: 1px;
+  --radius-none: 0;
+  --radius-s: 2px;
+  --radius-m: 4px;
+  --focus-width: 2px;
+  --focus-offset: 3px;
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-base: 220ms;
+  --duration-slow: 620ms;
+
+  --z-header: 100;
+  --z-skip: 200;
+}
+
+/* =========================================================================
+   Surface themes
+   -------------------------------------------------------------------------
+   Any element carrying a theme class becomes a self-contained colour context.
+   Buttons, rules, labels and links all read from these variables, so sections
+   can be reordered or restyled without touching component code.
+   ========================================================================= */
+
+.theme-paper {
+  --surface: var(--hm-paper);
+  --surface-raised: var(--hm-paper-raised);
+  --surface-sunken: var(--hm-paper-sunken);
+  --on-surface: var(--hm-black);
+  --on-surface-muted: var(--hm-paper-muted);
+  --rule: color-mix(in srgb, var(--hm-black) 16%, transparent);
+  --rule-strong: color-mix(in srgb, var(--hm-black) 42%, transparent);
+  --accent: var(--hm-terracotta);
+  --accent-on-surface: var(--hm-terracotta); /* large text & graphics only */
+  --focus: var(--hm-black);
+  --btn-primary-bg: var(--hm-black);
+  --btn-primary-fg: var(--hm-paper);
+  --btn-primary-bg-hover: var(--hm-green);
+  --selection-bg: var(--hm-lime);
+  --selection-fg: var(--hm-black);
+}
+
+.theme-forest {
+  --surface: var(--hm-green);
+  --surface-raised: var(--hm-green-raised);
+  --surface-sunken: var(--hm-green-deep);
+  --on-surface: var(--hm-paper);
+  --on-surface-muted: var(--hm-green-muted);
+  --rule: color-mix(in srgb, var(--hm-paper) 20%, transparent);
+  --rule-strong: color-mix(in srgb, var(--hm-paper) 45%, transparent);
+  --accent: var(--hm-lime);
+  --accent-on-surface: var(--hm-lime);
+  --focus: var(--hm-lime);
+  --btn-primary-bg: var(--hm-lime);
+  --btn-primary-fg: var(--hm-black);
+  --btn-primary-bg-hover: var(--hm-paper);
+  --selection-bg: var(--hm-lime);
+  --selection-fg: var(--hm-black);
+}
+
+.theme-ink {
+  --surface: var(--hm-black);
+  --surface-raised: var(--hm-ink-raised);
+  --surface-sunken: var(--hm-black);
+  --on-surface: var(--hm-paper);
+  --on-surface-muted: var(--hm-ink-muted);
+  --rule: color-mix(in srgb, var(--hm-paper) 18%, transparent);
+  --rule-strong: color-mix(in srgb, var(--hm-paper) 42%, transparent);
+  --accent: var(--hm-lime);
+  --accent-on-surface: var(--hm-lime);
+  --focus: var(--hm-lime);
+  --btn-primary-bg: var(--hm-lime);
+  --btn-primary-fg: var(--hm-black);
+  --btn-primary-bg-hover: var(--hm-paper);
+  --selection-bg: var(--hm-lime);
+  --selection-fg: var(--hm-black);
+}

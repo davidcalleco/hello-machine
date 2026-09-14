@@ -1,0 +1,81 @@
+---
+/**
+ * Document head: metadata, canonical, Open Graph and structured data.
+ *
+ * Note on og:image — no approved social card artwork exists yet, so nothing
+ * is claimed. The prop is wired up; drop a 1200×630 asset in /public and pass
+ * `ogImage` (or set a default here) when artwork is signed off.
+ */
+import { absoluteUrl, site } from '../lib/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Path of this page, used for the canonical URL. */
+  path?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  type?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = site.description,
+  path = Astro.url.pathname,
+  ogImage,
+  noindex = false,
+  type = 'website',
+} = Astro.props;
+
+const canonical = absoluteUrl(path);
+const fullTitle = title === site.name ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.name,
+  url: site.url,
+  description: site.description,
+  slogan: site.tagline,
+  areaServed: 'Worldwide',
+  serviceType: ['Website design', 'Website development', 'Website hosting and maintenance'],
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Website services',
+    itemListElement: [
+      { '@type': 'Offer', name: 'Website Subscription' },
+      { '@type': 'Offer', name: 'Website Ownership' },
+      { '@type': 'Offer', name: 'Build, Migrate, or Improve' },
+    ],
+  },
+};
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta name="theme-color" content="#182928" />
+<meta name="color-scheme" content="light" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content="en_GB" />
+{ogImage && <meta property="og:image" content={absoluteUrl(ogImage)} />}
+
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />

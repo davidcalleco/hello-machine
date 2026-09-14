@@ -1,0 +1,150 @@
+---
+/**
+ * The single call-to-action primitive.
+ *
+ * Renders <a> when given `href`, otherwise <button>. Colours come from the
+ * surrounding theme's `--btn-*` semantics, so the same variant reads correctly
+ * on paper, forest and ink surfaces without per-section overrides.
+ *
+ * External URLs are detected from the href, which matters because the booking
+ * CTA points at an internal anchor today and will point at a scheduler domain
+ * once one is configured.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'type'> {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'quiet';
+  size?: 'medium' | 'large';
+  type?: 'button' | 'submit';
+}
+
+const {
+  href,
+  variant = 'primary',
+  size = 'medium',
+  type = 'button',
+  class: className,
+  ...rest
+} = Astro.props;
+
+const isExternal = Boolean(href && /^(https?:)?\/\//.test(href));
+const Tag = href ? 'a' : 'button';
+const classes = ['btn', `btn--${variant}`, `btn--${size}`, className];
+---
+
+<Tag
+  class:list={classes}
+  {...href ? { href } : { type }}
+  {...isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+  {...rest}
+>
+  <span class="btn__label"><slot /></span>
+  {
+    isExternal && (
+      <span class="btn__external" aria-hidden="true">
+        ↗
+      </span>
+    )
+  }
+  {isExternal && <span class="visually-hidden">(opens in a new tab)</span>}
+</Tag>
+
+<style>
+  .btn {
+    --btn-border: transparent;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    /* 48px minimum target on touch, comfortably above the 44px guideline. */
+    min-height: 3rem;
+    padding: var(--space-xs) var(--space-m);
+    border: var(--rule-width) solid var(--btn-border);
+    border-radius: var(--radius-m);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+
+  .btn--large {
+    min-height: 3.25rem;
+    padding: var(--space-s) var(--space-l);
+    font-size: var(--step-0);
+  }
+
+  .btn--primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+  }
+
+  .btn--secondary {
+    background-color: transparent;
+    color: var(--on-surface);
+    --btn-border: var(--rule-strong);
+  }
+
+  .btn--quiet {
+    min-height: 2.75rem;
+    padding: var(--space-3xs) 0;
+    background: none;
+    color: var(--on-surface);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.35em;
+  }
+
+  .btn__external {
+    font-size: 0.85em;
+    line-height: 1;
+  }
+
+  /* Hover effects only where hovering is a real interaction. */
+  @media (hover: hover) {
+    .btn--primary:hover {
+      background-color: var(--btn-primary-bg-hover);
+      color: var(--surface);
+    }
+
+    .btn--secondary:hover {
+      --btn-border: var(--on-surface);
+      background-color: color-mix(in srgb, var(--on-surface) 8%, transparent);
+    }
+
+    .btn--quiet:hover {
+      text-decoration-color: var(--accent);
+    }
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn:active {
+      transform: none;
+    }
+  }
+
+  /* Stack full-width on the narrowest screens so two CTAs never crowd. */
+  @media (max-width: 26rem) {
+    .btn {
+      width: 100%;
+    }
+
+    .btn--quiet {
+      width: auto;
+    }
+  }
+</style>

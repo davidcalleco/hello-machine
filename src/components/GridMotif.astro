@@ -1,0 +1,69 @@
+---
+/**
+ * The visual system motif: a hairline grid with two lit cells.
+ *
+ * Deliberately static and decorative — it carries no information, so it is
+ * hidden from assistive technology. It scales with its container and uses
+ * `currentColor` for the grid so it inherits whatever theme it sits in.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const columns = 5;
+const rows = 5;
+const unit = 40;
+---
+
+<svg
+  class:list={['motif', className]}
+  viewBox={`0 0 ${columns * unit} ${rows * unit}`}
+  role="presentation"
+  aria-hidden="true"
+  focusable="false"
+  preserveAspectRatio="xMidYMid meet"
+>
+  <g class="motif__grid">
+    {
+      Array.from({ length: columns + 1 }).map((_, index) => (
+        <line x1={index * unit} y1="0" x2={index * unit} y2={rows * unit} />
+      ))
+    }
+    {
+      Array.from({ length: rows + 1 }).map((_, index) => (
+        <line x1="0" y1={index * unit} x2={columns * unit} y2={index * unit} />
+      ))
+    }
+  </g>
+  <rect class="motif__cell motif__cell--accent" x={unit * 2} y={unit} width={unit} height={unit} />
+  <rect class="motif__cell motif__cell--second" x={unit * 3} y={unit * 3} width={unit} height={unit} />
+  <circle class="motif__dot" cx={unit * 1.5} cy={unit * 3.5} r="4" />
+</svg>
+
+<style>
+  .motif {
+    width: 100%;
+    height: auto;
+    color: var(--rule-strong);
+  }
+
+  .motif__grid line {
+    stroke: currentColor;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .motif__cell--accent {
+    fill: var(--hm-lime);
+  }
+
+  .motif__cell--second {
+    fill: var(--hm-terracotta);
+  }
+
+  .motif__dot {
+    fill: var(--on-surface);
+    opacity: 0.55;
+  }
+</style>

@@ -1,0 +1,165 @@
+---
+/**
+ * Site footer. Contact details, language links and legal placeholders.
+ * Everything marked "placeholder" is honest about being unfinished rather
+ * than dressed up as complete.
+ */
+import LanguageToggle from './LanguageToggle.astro';
+import Wordmark from './Wordmark.astro';
+import { integrations, nav, site } from '../lib/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer theme-ink">
+  <div class="shell site-footer__inner">
+    <div class="site-footer__brand">
+      <Wordmark />
+      <p class="site-footer__line">{site.tagline}</p>
+    </div>
+
+    <div class="site-footer__group">
+      <h2 class="label site-footer__heading">Contact</h2>
+      <ul class="site-footer__list" role="list">
+        <li>
+          <a class="site-footer__link" href={`mailto:${integrations.contact.email}`}>
+            {integrations.contact.email}
+          </a>
+        </li>
+        <li><a class="site-footer__link" href="/contact/">Contact form</a></li>
+        <li><a class="site-footer__link" href={integrations.booking.url}>Book a call</a></li>
+      </ul>
+      <p class="site-footer__note">
+        Postal address and company details to be added before launch.
+      </p>
+    </div>
+
+    <div class="site-footer__group">
+      <h2 class="label site-footer__heading">Site</h2>
+      <ul class="site-footer__list" role="list">
+        {
+          nav.map((item) => (
+            <li>
+              <a class="site-footer__link" href={item.href}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="site-footer__group">
+      <h2 class="label site-footer__heading">Language</h2>
+      <LanguageToggle />
+      <p class="site-footer__note">Spanish version in progress.</p>
+    </div>
+  </div>
+
+  <div class="shell site-footer__legal">
+    <p>© {year} {site.name}</p>
+    <ul class="site-footer__legal-list" role="list">
+      <li><a class="site-footer__link" href="/privacy/">Privacy</a></li>
+      <li><span class="site-footer__pending">Terms — in preparation</span></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--surface);
+    color: var(--on-surface);
+    padding-block-start: var(--space-3xl);
+    padding-block-end: var(--space-l);
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .site-footer__line {
+    max-width: 24ch;
+    margin-block-start: var(--space-s);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: var(--leading-snug);
+    color: var(--on-surface-muted);
+  }
+
+  .site-footer__heading {
+    margin-block-end: var(--space-s);
+  }
+
+  .site-footer__list {
+    display: grid;
+    gap: var(--space-3xs);
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--on-surface);
+    /* Underline appears on hover/focus; the hairline keeps it legible meanwhile. */
+    border-block-end: var(--rule-width) solid transparent;
+  }
+
+  @media (hover: hover) {
+    .site-footer__link:hover {
+      border-block-end-color: var(--accent);
+    }
+  }
+
+  .site-footer__note,
+  .site-footer__pending {
+    display: block;
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+    color: var(--on-surface-muted);
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-block-start: var(--space-3xl);
+    padding-block-start: var(--space-m);
+    border-block-start: var(--rule-width) solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--on-surface-muted);
+  }
+
+  .site-footer__legal-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-footer__legal-list .site-footer__pending {
+    margin: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .site-footer__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-xl) var(--space-l);
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .site-footer__inner {
+      grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
+      gap: var(--space-l);
+    }
+  }
+</style>

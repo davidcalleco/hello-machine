@@ -1,0 +1,59 @@
+---
+/**
+ * Page section wrapper: owns the surface theme, vertical rhythm and the
+ * optional top hairline that gives the page its editorial structure.
+ */
+interface Props {
+  id?: string;
+  theme?: 'paper' | 'forest' | 'ink';
+  /** `labelledby` wires the section to its heading for assistive tech. */
+  labelledby?: string;
+  divider?: boolean;
+  size?: 'default' | 'compact';
+  class?: string;
+}
+
+const {
+  id,
+  theme = 'paper',
+  labelledby,
+  divider = false,
+  size = 'default',
+  class: className,
+} = Astro.props;
+---
+
+<section
+  id={id}
+  class:list={[`section`, `theme-${theme}`, `section--${size}`, { 'section--divider': divider }, className]}
+  aria-labelledby={labelledby}
+>
+  <div class="shell">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section {
+    position: relative;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    padding-block: var(--space-section);
+  }
+
+  .section--compact {
+    padding-block: calc(var(--space-section) * 0.6);
+  }
+
+  /* Hairline sits inside the shell so it aligns with the content grid. */
+  .section--divider::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: var(--gutter);
+    height: var(--rule-width);
+    background-color: var(--rule);
+    max-width: var(--width-content);
+    margin-inline: auto;
+  }
+</style>

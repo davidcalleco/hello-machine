@@ -1,0 +1,246 @@
+---
+/**
+ * Sticky site header.
+ *
+ * The mobile navigation is a native <details> disclosure: it works with zero
+ * JavaScript, is keyboard operable by default, and the small script below only
+ * adds conveniences (close on Escape, close after following an in-page link).
+ */
+import Button from './Button.astro';
+import LanguageToggle from './LanguageToggle.astro';
+import Wordmark from './Wordmark.astro';
+import { integrations, nav } from '../lib/site';
+
+interface Props {
+  theme?: 'paper' | 'forest' | 'ink';
+}
+
+const { theme = 'paper' } = Astro.props;
+const pathname = Astro.url.pathname;
+
+const isCurrent = (href: string) =>
+  href.startsWith('/#') ? false : href === pathname || `${href}/` === pathname;
+---
+
+<header class:list={['site-header', `theme-${theme}`]} data-site-header>
+  <div class="shell site-header__inner">
+    <Wordmark href="/" />
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list" role="list">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                class="site-nav__link"
+                href={item.href}
+                aria-current={isCurrent(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <LanguageToggle class="site-header__lang" />
+      <Button href={integrations.booking.url} class="site-header__cta">Book a call</Button>
+
+      <details class="site-menu" data-site-menu>
+        <summary class="site-menu__toggle" aria-label="Menu">
+          <span class="site-menu__toggle-label" aria-hidden="true">Menu</span>
+          <span class="site-menu__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="site-menu__panel">
+          <nav aria-label="Primary, mobile">
+            <ul class="site-menu__list" role="list">
+              {
+                nav.map((item) => (
+                  <li>
+                    <a class="site-menu__link" href={item.href}>
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+          <div class="site-menu__footer">
+            <LanguageToggle />
+            <Button href={integrations.booking.url} size="large">Book a call</Button>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Progressive enhancement only: the disclosure already works without this.
+  const menu = document.querySelector<HTMLDetailsElement>('[data-site-menu]');
+
+  if (menu) {
+    menu.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest('.site-menu__link')) menu.open = false;
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu.open) {
+        menu.open = false;
+        menu.querySelector<HTMLElement>('.site-menu__toggle')?.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-header);
+    background-color: var(--surface);
+    color: var(--on-surface);
+    border-block-end: var(--rule-width) solid var(--rule);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    min-height: var(--header-height, 4.5rem);
+    padding-block: var(--space-2xs);
+  }
+
+  .site-nav {
+    display: none;
+    margin-inline-start: auto;
+  }
+
+  .site-nav__list {
+    display: flex;
+    align-items: center;
+    gap: clamp(var(--space-s), 1.6vw, var(--space-l));
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--step--1);
+    text-decoration: none;
+    color: var(--on-surface-muted);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .site-nav__link[aria-current='page'] {
+    color: var(--on-surface);
+  }
+
+  @media (hover: hover) {
+    .site-nav__link:hover {
+      color: var(--on-surface);
+    }
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    margin-inline-start: auto;
+  }
+
+  .site-header__lang,
+  .site-header__cta {
+    display: none;
+  }
+
+  /* ---- Mobile disclosure ---- */
+
+  .site-menu__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: 2.75rem;
+    padding-inline: var(--space-3xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .site-menu__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-menu__icon {
+    position: relative;
+    display: block;
+    width: 1.125rem;
+    height: 0.625rem;
+    border-block: var(--rule-width) solid currentColor;
+  }
+
+  .site-menu[open] .site-menu__icon {
+    height: 0;
+    border-block-end-color: transparent;
+  }
+
+  .site-menu__panel {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 100%;
+    padding: var(--space-m) var(--gutter) var(--space-l);
+    background-color: var(--surface);
+    border-block-end: var(--rule-width) solid var(--rule);
+  }
+
+  .site-menu__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-menu__link {
+    display: block;
+    padding-block: var(--space-s);
+    border-block-end: var(--rule-width) solid var(--rule);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    text-decoration: none;
+  }
+
+  .site-menu__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-m);
+    margin-block-start: var(--space-l);
+  }
+
+  .site-menu__footer :global(.btn) {
+    width: 100%;
+  }
+
+  @media (min-width: 62rem) {
+    .site-nav,
+    .site-header__lang,
+    .site-header__cta {
+      display: flex;
+    }
+
+    .site-header__actions {
+      margin-inline-start: var(--space-l);
+    }
+
+    .site-menu {
+      display: none;
+    }
+  }
+</style>
