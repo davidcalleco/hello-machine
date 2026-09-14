@@ -1,0 +1,319 @@
+---
+/**
+ * About — the studio and the person answerable for it.
+ *
+ * Composition: an argument (what we believe), then the standards that follow
+ * from it on the signal field, then the founder entry as a catalogue record.
+ * Content is restricted to structural facts and approved positioning — no
+ * years of experience, employer list, location or team-size claim. See the
+ * dependency note at the top of src/data/about.ts.
+ */
+import Sheet from '../../components/Sheet.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import Action from '../../components/primitives/Action.astro';
+import Label from '../../components/primitives/Label.astro';
+import Mark from '../../components/primitives/Mark.astro';
+import Note from '../../components/primitives/Note.astro';
+import Spine from '../../components/primitives/Spine.astro';
+import Invitation from '../../components/field/Invitation.astro';
+import Masthead from '../../components/field/Masthead.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  aboutIntro,
+  aboutMeta,
+  founder,
+  position,
+  principles,
+  studioFacts,
+} from '../../data/about';
+---
+
+<BaseLayout title={aboutMeta.title} description={aboutMeta.description} path="/about/">
+  {/* ---- 01 The studio ----------------------------------------------- */}
+  <Sheet id="about" size="open" labelledby="page-title">
+    <Masthead
+      index="01"
+      label="About"
+      statement={aboutIntro.statement}
+      lead={aboutIntro.lead}
+      note={aboutIntro.note}
+      meta={studioFacts}
+      variant="open"
+      tone="editorial"
+      size={2}
+    />
+  </Sheet>
+
+  {/* ---- 02 The argument --------------------------------------------- */}
+  <Sheet id="position" rule="heavy" labelledby="position-title">
+    <SheetHead
+      index="02"
+      label="Position"
+      statement={{ lead: 'Production is no longer the', mark: 'bottleneck', tail: '.' }}
+      id="position-title"
+      size={3}
+      layout="offset"
+    />
+
+    <div class="argument">
+      <div class="prose argument__body">
+        {position.body.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+
+      <div class="argument__aside">
+        <Mark class="argument__mark" shape="ring" tone="signal" size="clamp(2.5rem, 5vw, 4rem)" />
+        <Note label={position.title} rule="side">
+          The line between what a machine drafts and what a person decides is published on every
+          practice page, so you can check it rather than take it on trust.
+        </Note>
+      </div>
+    </div>
+  </Sheet>
+
+  {/* ---- 03 The standards — the loud field --------------------------- */}
+  <Sheet id="principles" tone="signal" size="open" labelledby="principles-title">
+    <div class="standards__head">
+      <Label class="standards__label" index="03" text="Standards" tone="ink" />
+      <h2 class="display-2 standards__title" id="principles-title">
+        A studio is what it <em class="mark-serif mark-serif--signal">refuses</em> to do.
+      </h2>
+    </div>
+
+    <ol class="standards" role="list">
+      {
+        principles.map((principle) => (
+          <li class="standards__item">
+            <p class="label standards__index">{principle.index}</p>
+            <h3 class="standards__name">{principle.title}</h3>
+            <p class="standards__description">{principle.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </Sheet>
+
+  {/* ---- 04 The founder ---------------------------------------------- */}
+  <Sheet id="founder" tone="deep" labelledby="founder-title">
+    <div class="founder">
+      <Spine class="founder__spine" text={`${founder.role} — ${founder.name}`} tone="editorial" />
+
+      <div class="founder__head">
+        <Label class="founder__label" index="04" text="Who is answerable" tone="ink" />
+        <h2 class="display-3 founder__name" id="founder-title">{founder.name}</h2>
+        <p class="founder__role">{founder.role}</p>
+      </div>
+
+      <div class="founder__body">
+        <div class="prose founder__summary">
+          {founder.summary.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+
+        <div class="founder__responsibilities">
+          <p class="label founder__responsibilities-label">Personally owns</p>
+          <ul role="list">
+            {founder.responsibilities.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+
+        <Note class="founder__note" label="Collaborators" rule="top">{founder.collaborators}</Note>
+      </div>
+    </div>
+  </Sheet>
+
+  {/* ---- 05 Cross-reference ------------------------------------------ */}
+  <Sheet id="reference" size="tight" rule="hair" labelledby="reference-title">
+    <SheetHead
+      index="05"
+      label="Cross-reference"
+      statement={{ lead: 'The claims, and where to', mark: 'check them', tail: '.' }}
+      id="reference-title"
+      size={3}
+      layout="split"
+      note="Nothing on this site asks to be taken on trust if it can be shown instead."
+    />
+
+    <div class="checks">
+      <Action href="/process/" variant="ghost">How the work runs</Action>
+      <Action href="/work/" variant="ghost">What we can show you</Action>
+      <Action href="/services/" variant="ghost">What we take on</Action>
+    </div>
+  </Sheet>
+
+  {/* ---- 06 Invitation ----------------------------------------------- */}
+  <Invitation
+    index="06"
+    label="Invitation"
+    statement={{ lead: 'Talk to the person who will', mark: 'do the work', tail: '.' }}
+    lead="There is no account layer here. The call is with the person who will make the decisions, review the build and answer the email afterwards."
+    expectations={[
+      'Thirty minutes, no deck, no pressure',
+      'A direct answer on whether this is a fit',
+      'A written scope and a number follow if it is',
+    ]}
+  />
+</BaseLayout>
+
+<style>
+  /* =====================================================================
+     02 The argument
+     ===================================================================== */
+
+  .argument {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .argument__mark {
+    margin-block-end: var(--space-m);
+  }
+
+  @media (min-width: 64rem) {
+    .argument {
+      grid-template-columns: minmax(0, 1fr) var(--width-note);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .argument__body {
+      padding-inline-start: 16%;
+    }
+  }
+
+  /* =====================================================================
+     03 Standards — the one loud field on the page
+     ===================================================================== */
+
+  .standards__label {
+    margin-block-end: var(--space-m);
+  }
+
+  .standards__title {
+    max-width: 16ch;
+  }
+
+  .standards {
+    display: grid;
+    gap: 0;
+    margin: var(--space-2xl) 0 0;
+    padding: 0;
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .standards__item {
+    padding-block: var(--space-l);
+    border-block-end: var(--rule-hair) solid var(--rule);
+  }
+
+  .standards__index {
+    color: var(--ink-soft);
+  }
+
+  .standards__name {
+    max-width: 18ch;
+    margin-block-start: var(--space-s);
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
+  }
+
+  .standards__description {
+    max-width: 38ch;
+    margin-block-start: var(--space-s);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 56rem) {
+    .standards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-2xl);
+    }
+
+    .standards__item:nth-child(even) {
+      padding-inline-start: var(--space-l);
+      border-inline-start: var(--rule-hair) solid var(--rule);
+      margin-inline-start: calc(var(--space-l) * -1);
+    }
+  }
+
+  /* =====================================================================
+     04 The founder, as a catalogue record
+     ===================================================================== */
+
+  .founder {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .founder__label {
+    margin-block-end: var(--space-m);
+  }
+
+  .founder__role {
+    margin-block-start: var(--space-2xs);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-2);
+    line-height: 1.1;
+    color: var(--editorial);
+  }
+
+  .founder__responsibilities {
+    margin-block-start: var(--space-xl);
+  }
+
+  .founder__responsibilities ul {
+    display: grid;
+    gap: 0;
+    margin: var(--space-s) 0 0;
+    padding: 0;
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .founder__responsibilities li {
+    padding-block: var(--space-xs);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .founder__note {
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 60rem) {
+    .founder {
+      grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .founder__spine {
+      /* The coloured rule runs the full height of the record, which is what
+         makes it read as a catalogue entry rather than a caption. */
+      align-self: stretch;
+    }
+
+    .founder__responsibilities {
+      max-width: 22rem;
+    }
+  }
+
+  /* =====================================================================
+     05 Cross-reference
+     ===================================================================== */
+
+  .checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-m);
+  }
+
+  @media (min-width: 56rem) {
+    .checks {
+      margin-inline-start: 16%;
+    }
+  }
+</style>

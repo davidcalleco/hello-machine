@@ -1,0 +1,168 @@
+---
+/**
+ * The closing sheet: the one structure that is meant to repeat.
+ *
+ * Every route ends on the same conversion moment in the same place, because
+ * that is what makes it findable — but the statement and the supporting copy
+ * are supplied per page, so it is never the same words twice.
+ */
+import Sheet from '../Sheet.astro';
+import Action from '../primitives/Action.astro';
+import Mark from '../primitives/Mark.astro';
+import Statement from '../primitives/Statement.astro';
+import type { StatementText } from '../primitives/Statement.astro';
+import { integrations } from '../../lib/site';
+
+interface Props {
+  index?: string;
+  label?: string;
+  statement: StatementText;
+  lead?: string;
+  expectations?: readonly string[];
+  tone?: 'ink' | 'signal';
+  id?: string;
+}
+
+const {
+  index = '08',
+  label = 'Invitation',
+  statement,
+  lead,
+  expectations,
+  tone = 'ink',
+  id = 'invitation',
+} = Astro.props;
+
+const headingId = `${id}-title`;
+---
+
+<Sheet id={id} tone={tone} size="open" labelledby={headingId}>
+  <Mark class="invitation__mark" shape="disc" tone="action" size="clamp(4rem, 9vw, 9rem)" />
+
+  <div class="invitation">
+    <div class="invitation__head">
+      <p class="label invitation__label">{index} / {label}</p>
+      <Statement
+        class="invitation__statement"
+        statement={statement}
+        as="h2"
+        size={1}
+        tone="signal"
+        id={headingId}
+      />
+    </div>
+
+    <div class="invitation__body">
+      {lead && <p class="invitation__lead">{lead}</p>}
+
+      {
+        expectations && expectations.length > 0 && (
+          <ul class="invitation__expectations" role="list">
+            {expectations.map((expectation, position) => (
+              <li>
+                <span class="invitation__step" aria-hidden="true">
+                  {String(position + 1).padStart(2, '0')}
+                </span>
+                {expectation}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <div class="invitation__actions">
+        <Action href={integrations.booking.url} size="large">Book a call</Action>
+        <Action href="/contact/" variant="line">Or send an enquiry</Action>
+      </div>
+
+      <p class="invitation__direct">
+        Direct: <a href={`mailto:${integrations.contact.email}`}>{integrations.contact.email}</a>
+      </p>
+    </div>
+  </div>
+</Sheet>
+
+<style>
+  .invitation {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .invitation__mark {
+    /* The one large mark on the closing sheet, parked in the margin above the
+       statement rather than centred behind it. */
+    margin-block-end: var(--space-l);
+  }
+
+  .invitation__label {
+    margin-block-end: var(--space-m);
+    color: var(--ink-soft);
+  }
+
+  .invitation__lead {
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.3;
+    letter-spacing: var(--track-tight);
+    color: var(--ink-soft);
+  }
+
+  .invitation__expectations {
+    display: grid;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    list-style: none;
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .invitation__expectations > li {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-s);
+    padding-block: var(--space-s);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .invitation__step {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+  }
+
+  .invitation__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    margin-block-start: var(--space-xl);
+  }
+
+  .invitation__direct {
+    margin-block-start: var(--space-m);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .invitation__direct a {
+    color: var(--ink);
+    text-decoration-color: var(--signal);
+  }
+
+  @media (min-width: 60rem) {
+    .invitation {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .invitation__body {
+      padding-block-start: var(--space-l);
+    }
+  }
+</style>

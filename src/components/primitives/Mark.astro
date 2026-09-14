@@ -1,0 +1,83 @@
+---
+/**
+ * A field mark: the registration shapes that sit on the sheet.
+ *
+ *   disc   a solid circle, multiplied into the field like printer's ink
+ *   ring   the same circle, outlined — a mark that has been considered
+ *   cross  the serif ×, the editor's "this one"
+ *   tick   a short crosshair, used at grid intersections
+ *
+ * Marks carry no information, so they are hidden from assistive technology.
+ * They are the page's signature and are placed deliberately, never repeated
+ * as wallpaper.
+ */
+interface Props {
+  shape?: 'disc' | 'ring' | 'cross' | 'tick';
+  tone?: 'action' | 'signal' | 'editorial' | 'select' | 'ink';
+  /** Any CSS length. Discs and rings use it as a diameter, glyphs as a size. */
+  size?: string;
+  class?: string;
+}
+
+const { shape = 'disc', tone = 'action', size = '6rem', class: className } = Astro.props;
+---
+
+<span
+  class:list={['mark', `mark--${shape}`, className]}
+  data-tone={tone}
+  style={`--mark-size:${size}`}
+  aria-hidden="true">{shape === 'cross' ? '×' : ''}{shape === 'tick' ? '+' : ''}</span
+>
+
+<style>
+  .mark {
+    display: block;
+    width: var(--mark-size);
+    height: var(--mark-size);
+    color: var(--mark-colour);
+    pointer-events: none;
+  }
+
+  .mark[data-tone='action'] {
+    --mark-colour: var(--action);
+  }
+  .mark[data-tone='signal'] {
+    --mark-colour: var(--signal);
+  }
+  .mark[data-tone='editorial'] {
+    --mark-colour: var(--editorial);
+  }
+  .mark[data-tone='select'] {
+    --mark-colour: var(--select);
+  }
+  .mark[data-tone='ink'] {
+    --mark-colour: var(--ink);
+  }
+
+  .mark--disc {
+    background-color: var(--mark-colour);
+    border-radius: 50%;
+    /* Multiply so the mark reads as ink on paper where it overlaps type,
+       rather than as a sticker placed on top of it. */
+    mix-blend-mode: multiply;
+  }
+
+  .mark--ring {
+    border: var(--rule-heavy) solid var(--mark-colour);
+    border-radius: 50%;
+  }
+
+  .mark--cross,
+  .mark--tick {
+    width: auto;
+    height: auto;
+    font-family: var(--font-serif);
+    font-size: var(--mark-size);
+    line-height: 0.8;
+  }
+
+  .mark--tick {
+    font-family: var(--font-mono);
+    font-weight: 400;
+  }
+</style>

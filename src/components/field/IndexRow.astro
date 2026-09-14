@@ -1,0 +1,146 @@
+---
+/**
+ * A catalogue row: index number, name, one line of description, and the mark
+ * that says the row goes somewhere.
+ *
+ * This is the site's most repeated structure — practices, engagements, page
+ * indexes — so it owns its own hit area, focus treatment and selection
+ * colour once, rather than each page reinventing them.
+ */
+interface Props {
+  index: string;
+  name: string;
+  line?: string;
+  href?: string;
+  /** large is the page's own index; default is a cross-reference list. */
+  size?: 'default' | 'large';
+  class?: string;
+}
+
+const { index, name, line, href, size = 'default', class: className } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  class:list={['index-row', `index-row--${size}`, { 'index-row--link': href }, className]}
+  {...href ? { href } : {}}
+>
+  <span class="index-row__index" aria-hidden="true">{index}</span>
+  <span class="index-row__name">{name}</span>
+  {line && <span class="index-row__line">{line}</span>}
+  {
+    href && (
+      <span class="index-row__arrow" aria-hidden="true">
+        ↗
+      </span>
+    )
+  }
+</Tag>
+
+<style>
+  .index-row {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 1.5rem;
+    align-items: baseline;
+    column-gap: var(--space-s);
+    padding-block: var(--space-m);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+      background-color var(--duration-fast) var(--ease),
+      padding-inline var(--duration-fast) var(--ease);
+  }
+
+  .index-row__index {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+  }
+
+  .index-row__name {
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
+  }
+
+  .index-row--large .index-row__name {
+    font-size: var(--step-4);
+    line-height: var(--leading-display);
+    letter-spacing: var(--track-display);
+  }
+
+  .index-row__line {
+    grid-column: 2;
+    max-width: var(--measure-short);
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+    line-height: 1.35;
+    color: var(--ink-soft);
+  }
+
+  .index-row__arrow {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    font-size: var(--step-1);
+    line-height: 1;
+    transition: transform var(--duration-base) var(--ease);
+  }
+
+  /* Selection is the highlighter. Hover and focus both use it, so pointer and
+     keyboard users get the same signal rather than two different ones. */
+  .index-row--link:focus-visible {
+    background-color: var(--select);
+    color: var(--on-select);
+  }
+
+  .index-row--link:focus-visible .index-row__index,
+  .index-row--link:focus-visible .index-row__line {
+    color: var(--ink);
+  }
+
+  @media (hover: hover) {
+    .index-row--link:hover {
+      background-color: var(--select);
+      color: var(--on-select);
+    }
+
+    .index-row--link:hover .index-row__index,
+    .index-row--link:hover .index-row__line {
+      color: var(--ink);
+    }
+
+    .index-row--link:hover .index-row__arrow {
+      transform: translate(0.2em, -0.2em);
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .index-row {
+      grid-template-columns: 4.5rem minmax(0, 1fr) minmax(0, 1fr) 2rem;
+      column-gap: var(--space-l);
+      padding-block: var(--space-l);
+    }
+
+    .index-row__line {
+      grid-column: 3;
+      grid-row: 1;
+      max-width: 42ch;
+      margin-block-start: 0.5em;
+    }
+
+    .index-row__arrow {
+      grid-column: 4;
+    }
+
+    /* Indent on hover: the row steps forward out of the list. */
+    .index-row--link:hover,
+    .index-row--link:focus-visible {
+      padding-inline: var(--space-s);
+      margin-inline: calc(var(--space-s) * -1);
+    }
+  }
+</style>

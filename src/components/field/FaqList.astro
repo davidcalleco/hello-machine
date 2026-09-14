@@ -1,0 +1,139 @@
+---
+/**
+ * Questions, as native <details> disclosures.
+ *
+ * No JavaScript, no ARIA to get wrong, keyboard operable by definition, and
+ * findable by the browser's own in-page search in supporting engines. The
+ * marker is a mono + / − in the signal colour rather than a rotating chevron,
+ * because nothing on this site should need motion to be understood.
+ */
+import type { Faq } from '../../data/types';
+
+interface Props {
+  faqs: readonly Faq[];
+  /** Opens the first entry, so the section is never a wall of closed rows. */
+  openFirst?: boolean;
+  class?: string;
+}
+
+const { faqs, openFirst = true, class: className } = Astro.props;
+---
+
+<div class:list={['faqs', className]}>
+  {
+    faqs.map((faq, position) => (
+      <details class="faqs__item" open={openFirst && position === 0}>
+        <summary class="faqs__question">
+          <span class="faqs__index" aria-hidden="true">
+            {String(position + 1).padStart(2, '0')}
+          </span>
+          <span class="faqs__text">{faq.question}</span>
+          <span class="faqs__marker" aria-hidden="true" />
+        </summary>
+        <p class="faqs__answer">{faq.answer}</p>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faqs {
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .faqs__item {
+    border-block-end: var(--rule-hair) solid var(--rule);
+  }
+
+  .faqs__question {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 1.5rem;
+    align-items: baseline;
+    column-gap: var(--space-s);
+    padding-block: var(--space-m);
+    cursor: pointer;
+    list-style: none;
+    transition: color var(--duration-fast) var(--ease);
+  }
+
+  .faqs__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faqs__index {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+  }
+
+  .faqs__text {
+    font-size: var(--step-1);
+    font-weight: 500;
+    line-height: var(--leading-snug);
+    letter-spacing: var(--track-tight);
+    text-wrap: balance;
+  }
+
+  /* A drawn mark, so the open state is a shape change rather than a rotation:
+     the plus loses its vertical stroke and becomes a minus. */
+  .faqs__marker {
+    position: relative;
+    justify-self: end;
+    align-self: center;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .faqs__marker::before,
+  .faqs__marker::after {
+    content: '';
+    position: absolute;
+    background-color: var(--signal);
+  }
+
+  .faqs__marker::before {
+    inset-block-start: 50%;
+    inset-inline: 0;
+    height: var(--rule-heavy);
+    translate: 0 -50%;
+  }
+
+  .faqs__marker::after {
+    inset-inline-start: 50%;
+    inset-block: 0;
+    width: var(--rule-heavy);
+    translate: -50% 0;
+  }
+
+  .faqs__item[open] .faqs__marker::after {
+    display: none;
+  }
+
+  .faqs__item[open] .faqs__question {
+    color: var(--ink);
+  }
+
+  @media (hover: hover) {
+    .faqs__question:hover .faqs__text {
+      color: var(--signal);
+    }
+  }
+
+  .faqs__answer {
+    max-width: var(--measure);
+    padding-block-end: var(--space-l);
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 60rem) {
+    .faqs__question {
+      grid-template-columns: 4.5rem minmax(0, 1fr) 2rem;
+      column-gap: var(--space-l);
+    }
+
+    .faqs__answer {
+      margin-inline-start: calc(4.5rem + var(--space-l));
+    }
+  }
+</style>

@@ -1,0 +1,113 @@
+---
+/**
+ * The opening of a sheet: index, label, statement, and an optional note in
+ * the margin.
+ *
+ * Three layouts, so sections share an alignment system without sharing a
+ * silhouette:
+ *
+ *   split   label left, statement centre, note right — the catalogue header
+ *   stack   label above, statement below, note underneath — for dense sheets
+ *   offset  label at the margin, statement indented into the field — for the
+ *           quiet sheets that need a change of pace
+ */
+import Label from './primitives/Label.astro';
+import Statement from './primitives/Statement.astro';
+import type { StatementText } from './primitives/Statement.astro';
+
+interface Props {
+  index?: string;
+  label: string;
+  statement: StatementText;
+  /** Heading id, so the parent sheet can be labelled by it. */
+  id: string;
+  as?: 'h2' | 'h3';
+  size?: 1 | 2 | 3;
+  tone?: 'editorial' | 'signal';
+  lead?: string;
+  note?: string;
+  layout?: 'split' | 'stack' | 'offset';
+  class?: string;
+}
+
+const {
+  index,
+  label,
+  statement,
+  id,
+  as = 'h2',
+  size = 3,
+  tone = 'editorial',
+  lead,
+  note,
+  layout = 'split',
+  class: className,
+} = Astro.props;
+---
+
+<header class:list={['sheet-head', `sheet-head--${layout}`, className]}>
+  <Label class="sheet-head__label" index={index} text={label} tone="ink" />
+
+  <div class="sheet-head__body">
+    <Statement statement={statement} as={as} size={size} tone={tone} id={id} />
+    {lead && <p class="lead sheet-head__lead">{lead}</p>}
+  </div>
+
+  {note && <p class="note sheet-head__note">{note}</p>}
+</header>
+
+<style>
+  .sheet-head {
+    display: grid;
+    gap: var(--space-m);
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+    padding-block-start: var(--space-s);
+    margin-block-end: var(--space-xl);
+  }
+
+  .sheet-head__lead {
+    margin-block-start: var(--space-m);
+    color: var(--ink-soft);
+  }
+
+  .sheet-head__note {
+    align-self: end;
+  }
+
+  @media (min-width: 60rem) {
+    .sheet-head--split {
+      grid-template-columns: 16% minmax(0, 1fr) 22%;
+      column-gap: var(--space-l);
+      align-items: start;
+    }
+
+    .sheet-head--split .sheet-head__note {
+      padding-block-start: 0.4em;
+    }
+
+    .sheet-head--stack {
+      grid-template-columns: minmax(0, 1fr) 22%;
+      column-gap: var(--space-2xl);
+    }
+
+    .sheet-head--stack .sheet-head__label {
+      grid-column: 1 / -1;
+    }
+
+    .sheet-head--offset {
+      grid-template-columns: 16% minmax(0, 1fr);
+      column-gap: var(--space-l);
+    }
+
+    .sheet-head--offset .sheet-head__body {
+      /* Pushed one further column in: the sheet changes pace here. */
+      padding-inline-start: 12%;
+    }
+
+    .sheet-head--offset .sheet-head__note {
+      grid-column: 2;
+      padding-inline-start: 12%;
+      margin-block-start: var(--space-m);
+    }
+  }
+</style>

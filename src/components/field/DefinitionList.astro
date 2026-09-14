@@ -1,0 +1,112 @@
+---
+/**
+ * A field of term/description pairs — capabilities, deliverables, outputs.
+ *
+ * A description list rather than a grid of cards: the relationship between a
+ * name and its explanation is the whole content, and a <dl> says so to a
+ * screen reader without needing a card to draw it.
+ *
+ * Density is a prop because the same structure carries eight short entries on
+ * one page and five long ones on another, and those want different columns.
+ */
+interface Entry {
+  name: string;
+  description: string;
+}
+
+interface Props {
+  items: readonly Entry[];
+  columns?: 2 | 3;
+  /** Prefixes each entry with its position, set in the mono hand. */
+  numbered?: boolean;
+  class?: string;
+}
+
+const { items, columns = 2, numbered = false, class: className } = Astro.props;
+---
+
+<dl class:list={['definitions', `definitions--${columns}`, className]}>
+  {
+    items.map((item, position) => (
+      <div class="definitions__entry">
+        <dt class="definitions__term">
+          {numbered && (
+            <span class="definitions__number" aria-hidden="true">
+              {String(position + 1).padStart(2, '0')}
+            </span>
+          )}
+          {item.name}
+        </dt>
+        <dd class="definitions__description">{item.description}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .definitions {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .definitions__entry {
+    padding-block: var(--space-m);
+    border-block-end: var(--rule-hair) solid var(--rule);
+  }
+
+  .definitions__term {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2xs);
+    font-size: var(--step-1);
+    font-weight: 500;
+    line-height: var(--leading-snug);
+    letter-spacing: var(--track-tight);
+  }
+
+  .definitions__number {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    font-weight: 400;
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+  }
+
+  .definitions__description {
+    max-width: 46ch;
+    margin: var(--space-2xs) 0 0;
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 46rem) {
+    .definitions--2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-2xl);
+    }
+
+    /* Hairlines already separate every row; the vertical rule is what turns
+       two stacks into one field. */
+    .definitions--2 .definitions__entry:nth-child(even) {
+      padding-inline-start: var(--space-l);
+      border-inline-start: var(--rule-hair) solid var(--rule);
+      margin-inline-start: calc(var(--space-l) * -1);
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .definitions--3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-2xl);
+    }
+
+    .definitions--3 .definitions__entry:not(:nth-child(3n + 1)) {
+      padding-inline-start: var(--space-l);
+      border-inline-start: var(--rule-hair) solid var(--rule);
+      margin-inline-start: calc(var(--space-l) * -1);
+    }
+  }
+</style>

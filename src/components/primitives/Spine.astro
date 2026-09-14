@@ -1,0 +1,53 @@
+---
+/**
+ * The vertical spine: a rotated mono line running up the left edge of a
+ * masthead, against a coloured rule. Borrowed from catalogue and archive
+ * typesetting — it tells you which volume you are holding.
+ *
+ * Hidden below the breakpoint where it would eat the text column; the same
+ * information is always present in the page's metadata row, so nothing is
+ * lost on a phone.
+ */
+interface Props {
+  text: string;
+  tone?: 'editorial' | 'signal' | 'action';
+  class?: string;
+}
+
+const { text, tone = 'editorial', class: className } = Astro.props;
+---
+
+<p class:list={['spine', className]} data-tone={tone} aria-hidden="true">{text}</p>
+
+<style>
+  .spine {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    padding-block: var(--space-xs);
+    padding-inline-end: var(--space-2xs);
+    border-inline-end: var(--rule-heavy) solid var(--spine-colour);
+    white-space: nowrap;
+  }
+
+  .spine[data-tone='editorial'] {
+    --spine-colour: var(--editorial);
+  }
+  .spine[data-tone='signal'] {
+    --spine-colour: var(--signal);
+  }
+  .spine[data-tone='action'] {
+    --spine-colour: var(--action);
+  }
+
+  @media (min-width: 60rem) {
+    .spine {
+      display: block;
+    }
+  }
+</style>

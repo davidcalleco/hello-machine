@@ -1,0 +1,166 @@
+---
+/**
+ * An engagement written out in full: the catalogue entry, as opposed to the
+ * selection instrument on the homepage.
+ *
+ * Same content, deliberately different composition. On the homepage you are
+ * choosing between three things and only need one open at a time; on the
+ * services page you are comparing them, so all three are laid out and
+ * scannable down the same columns.
+ */
+import Action from '../primitives/Action.astro';
+import type { Engagement } from '../../data/types';
+
+interface Props {
+  engagement: Engagement;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { engagement, headingLevel: Heading = 'h3' } = Astro.props;
+const headingId = `engagement-${engagement.id}`;
+---
+
+<article class="entry" id={engagement.id} aria-labelledby={headingId}>
+  <header class="entry__head">
+    <p class="label entry__index">{engagement.index}</p>
+    <Heading class="entry__name" id={headingId}>{engagement.name}</Heading>
+    <p class="entry__line">{engagement.line}</p>
+  </header>
+
+  <div class="entry__body">
+    <div class="entry__column">
+      <p class="label entry__column-label">What it is</p>
+      <p class="entry__summary">{engagement.summary}</p>
+      <p class="entry__best">
+        <span class="entry__best-label">Best for</span>
+        {engagement.bestFor}
+      </p>
+    </div>
+
+    <div class="entry__column">
+      <p class="label entry__column-label">What it covers</p>
+      <ul class="entry__includes" role="list">
+        {engagement.includes.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+
+    <div class="entry__column">
+      <p class="label entry__column-label">The boundary</p>
+      <p class="entry__boundary">{engagement.boundary}</p>
+      <Action href={engagement.action.href} variant="ghost" class="entry__action">
+        {engagement.action.label}
+      </Action>
+    </div>
+  </div>
+</article>
+
+<style>
+  .entry {
+    display: grid;
+    gap: var(--space-l);
+    padding-block: var(--space-xl);
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .entry__index {
+    color: var(--signal);
+  }
+
+  .entry__name {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step-5);
+    font-weight: 500;
+    line-height: var(--leading-display);
+    letter-spacing: var(--track-display);
+  }
+
+  .entry__line {
+    margin-block-start: var(--space-xs);
+    max-width: 24ch;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-2);
+    line-height: 1.1;
+    color: var(--editorial);
+  }
+
+  .entry__body {
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .entry__column {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2xs);
+    padding-block-start: var(--space-s);
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .entry__column-label {
+    margin-block-end: var(--space-2xs);
+  }
+
+  .entry__summary,
+  .entry__boundary {
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  .entry__best {
+    margin-block-start: var(--space-s);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .entry__best-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--editorial);
+  }
+
+  .entry__includes {
+    display: grid;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+  }
+
+  .entry__includes > li {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: var(--space-2xs);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .entry__includes > li::before {
+    content: '+';
+    font-family: var(--font-mono);
+    color: var(--signal);
+  }
+
+  .entry__action {
+    justify-self: start;
+    margin-block-start: var(--space-m);
+  }
+
+  @media (min-width: 46rem) {
+    .entry__body {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-l);
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .entry {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 2.1fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+  }
+</style>

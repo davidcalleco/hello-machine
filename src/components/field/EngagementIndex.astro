@@ -1,0 +1,319 @@
+---
+/**
+ * The selection instrument: choosing an index row changes the explanation
+ * beside it.
+ *
+ * Static-first, as the approved interaction contract requires. Without
+ * JavaScript this is a list of in-page links above three fully-written
+ * entries — every word is present and reachable. The script below upgrades it
+ * to a tablist: same content, less scrolling, keyboard arrow navigation, and
+ * a selected state carried by the highlighter colour rather than by motion.
+ *
+ * Nothing here animates. Reduced-motion users lose nothing because there is
+ * nothing to lose.
+ */
+import Action from '../primitives/Action.astro';
+import type { Engagement } from '../../data/types';
+
+interface Props {
+  engagements: Engagement[];
+  /** Unique within the page — two instruments can coexist. */
+  id?: string;
+}
+
+const { engagements, id = 'engagement' } = Astro.props;
+---
+
+<div class="selector" data-selector>
+  <div class="selector__list" data-tablist>
+    {
+      engagements.map((engagement) => (
+        <a
+          class="selector__tab"
+          id={`${id}-tab-${engagement.id}`}
+          href={`#${id}-panel-${engagement.id}`}
+          data-tab={engagement.id}
+        >
+          <span class="selector__tab-index" aria-hidden="true">
+            {engagement.index}
+          </span>
+          <span class="selector__tab-name">{engagement.name}</span>
+          <span class="selector__tab-line">{engagement.line}</span>
+        </a>
+      ))
+    }
+  </div>
+
+  <div class="selector__panels">
+    {
+      engagements.map((engagement) => (
+        <article
+          class="selector__panel"
+          id={`${id}-panel-${engagement.id}`}
+          data-panel={engagement.id}
+        >
+          <h3 class="selector__panel-title">
+            <span class="label selector__panel-index">{engagement.index} / Best for</span>
+            {engagement.bestFor}
+          </h3>
+
+          <p class="selector__summary">{engagement.summary}</p>
+
+          <ul class="selector__includes" role="list">
+            {engagement.includes.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+
+          <p class="selector__boundary">
+            <span class="label selector__boundary-label">The boundary</span>
+            {engagement.boundary}
+          </p>
+
+          <Action href={engagement.action.href} variant="line">
+            {engagement.action.label}
+          </Action>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  // Progressive enhancement. If anything here is unavailable the markup stays
+  // exactly as rendered: a link list above three readable entries.
+  for (const root of document.querySelectorAll<HTMLElement>('[data-selector]')) {
+    const tabs = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
+    const list = root.querySelector<HTMLElement>('[data-tablist]');
+
+    if (tabs.length === 0 || tabs.length !== panels.length || !list) continue;
+
+    list.setAttribute('role', 'tablist');
+    list.setAttribute('aria-label', 'Ways to work');
+
+    for (const panel of panels) {
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('tabindex', '0');
+      const key = panel.dataset.panel;
+      const tab = tabs.find((candidate) => candidate.dataset.tab === key);
+      if (tab) panel.setAttribute('aria-labelledby', tab.id);
+    }
+
+    const select = (next: number, focus = false) => {
+      tabs.forEach((tab, position) => {
+        const active = position === next;
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', String(active));
+        tab.setAttribute('aria-controls', panels[position].id);
+        // Roving tabindex: the tablist is one stop, arrows move within it.
+        tab.tabIndex = active ? 0 : -1;
+        panels[position].hidden = !active;
+      });
+      if (focus) tabs[next].focus();
+    };
+
+    tabs.forEach((tab, position) => {
+      tab.addEventListener('click', (event) => {
+        event.preventDefault();
+        select(position);
+      });
+
+      tab.addEventListener('keydown', (event) => {
+        const last = tabs.length - 1;
+        let next: number | null = null;
+
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+          next = position + 1 > last ? 0 : position + 1;
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+          next = position - 1 < 0 ? last : position - 1;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = last;
+
+        if (next === null) return;
+        event.preventDefault();
+        select(next, true);
+      });
+    });
+
+    root.setAttribute('data-enhanced', '');
+    select(0);
+  }
+</script>
+
+<style>
+  .selector {
+    display: grid;
+    gap: var(--space-xl);
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  /* ---- The index ---- */
+
+  .selector__list {
+    display: grid;
+  }
+
+  .selector__tab {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    column-gap: var(--space-s);
+    padding-block: var(--space-m);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease),
+      padding-inline var(--duration-fast) var(--ease);
+  }
+
+  .selector__tab-index {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+    padding-block-start: 0.5em;
+  }
+
+  .selector__tab-name {
+    font-size: var(--step-4);
+    font-weight: 500;
+    line-height: var(--leading-display);
+    letter-spacing: var(--track-display);
+  }
+
+  .selector__tab-line {
+    grid-column: 2;
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+
+  .selector__tab[aria-selected='true'],
+  .selector__tab:focus-visible {
+    background-color: var(--select);
+    color: var(--on-select);
+  }
+
+  .selector__tab[aria-selected='true'] .selector__tab-index,
+  .selector__tab[aria-selected='true'] .selector__tab-line,
+  .selector__tab:focus-visible .selector__tab-index,
+  .selector__tab:focus-visible .selector__tab-line {
+    color: var(--ink);
+  }
+
+  @media (hover: hover) {
+    .selector__tab:hover {
+      background-color: var(--select);
+      color: var(--on-select);
+    }
+
+    .selector__tab:hover .selector__tab-index,
+    .selector__tab:hover .selector__tab-line {
+      color: var(--ink);
+    }
+  }
+
+  /* ---- The response ---- */
+
+  .selector__panels {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .selector__panel {
+    display: grid;
+    align-content: start;
+    gap: var(--space-m);
+  }
+
+  /* Once enhanced, only the selected entry is in flow — and the panels stop
+     needing their own separating rules. */
+  [data-enhanced] .selector__panels {
+    gap: 0;
+  }
+
+  .selector__panel-title {
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
+    text-wrap: balance;
+  }
+
+  .selector__panel-index {
+    display: block;
+    margin-block-end: var(--space-2xs);
+  }
+
+  .selector__summary {
+    max-width: 44ch;
+    color: var(--ink-soft);
+  }
+
+  .selector__includes {
+    display: grid;
+    gap: var(--space-2xs);
+    margin: 0;
+    padding: 0;
+    max-width: 44ch;
+    border-block-start: var(--rule-hair) solid var(--rule);
+    padding-block-start: var(--space-s);
+  }
+
+  .selector__includes > li {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: var(--space-2xs);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .selector__includes > li::before {
+    content: '+';
+    font-family: var(--font-mono);
+    color: var(--signal);
+  }
+
+  .selector__boundary {
+    max-width: 44ch;
+    padding-inline-start: var(--space-m);
+    border-inline-start: var(--rule-heavy) solid var(--editorial);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .selector__boundary-label {
+    display: block;
+    margin-block-end: var(--space-3xs);
+  }
+
+  .selector__panel :global(.action) {
+    justify-self: start;
+  }
+
+  @media (min-width: 60rem) {
+    .selector {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      column-gap: var(--space-2xl);
+    }
+
+    .selector__tab {
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+      column-gap: var(--space-l);
+      padding-block: var(--space-l);
+    }
+
+    .selector__tab[aria-selected='true'],
+    .selector__tab:hover,
+    .selector__tab:focus-visible {
+      padding-inline: var(--space-s);
+      margin-inline: calc(var(--space-s) * -1);
+    }
+
+    .selector__panels {
+      padding-block-start: var(--space-l);
+    }
+  }
+</style>

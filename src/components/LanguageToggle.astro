@@ -33,7 +33,7 @@ const { current = site.locale, class: className } = Astro.props;
             </a>
           ) : (
             <span class="lang__link lang__link--pending" aria-disabled="true">
-              <span class="visually-hidden">{language.name} — coming soon</span>
+              <span class="visually-hidden">{language.name} — in preparation</span>
               <span aria-hidden="true">{language.label}</span>
             </span>
           )}
@@ -53,15 +53,15 @@ const { current = site.locale, class: className } = Astro.props;
     list-style: none;
   }
 
-  .lang__item + .lang__item::before {
-    content: '/';
-    margin-inline-end: var(--space-2xs);
-    color: var(--on-surface-muted);
-  }
-
   .lang__item {
     display: flex;
     align-items: center;
+  }
+
+  .lang__item + .lang__item::before {
+    content: '/';
+    margin-inline-end: var(--space-2xs);
+    color: var(--ink-soft);
   }
 
   .lang__link {
@@ -71,23 +71,27 @@ const { current = site.locale, class: className } = Astro.props;
     padding-inline: var(--space-3xs);
     font-family: var(--font-mono);
     font-size: var(--step--2);
-    letter-spacing: var(--tracking-label);
+    letter-spacing: var(--track-label);
     text-decoration: none;
-    color: var(--on-surface-muted);
+    color: var(--ink-soft);
+    transition: color var(--duration-fast) var(--ease);
   }
 
   .lang__link[aria-current='true'] {
-    color: var(--on-surface);
+    color: var(--ink);
   }
 
   .lang__link--pending {
-    opacity: 0.55;
+    /* Not dimmed into illegibility: it is still a real piece of information
+       about the site, so it keeps its contrast and says so on focus. */
+    text-decoration: line-through;
+    text-decoration-color: var(--editorial);
     cursor: default;
   }
 
   @media (hover: hover) {
     a.lang__link:hover {
-      color: var(--on-surface);
+      color: var(--signal);
     }
   }
 </style>

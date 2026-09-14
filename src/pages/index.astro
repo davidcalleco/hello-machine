@@ -1,433 +1,451 @@
 ---
+/**
+ * Home.
+ *
+ * The page's own composition: a wide opening declaration, then the selection
+ * instrument, then the argument that justifies it, then evidence, process and
+ * the invitation. Each sheet has a different silhouette on purpose — the
+ * shared components enforce alignment, rules and colour roles, not sameness.
+ *
+ * All copy comes from src/data. Nothing here invents a claim.
+ */
+import Sheet from '../components/Sheet.astro';
+import SheetHead from '../components/SheetHead.astro';
+import Action from '../components/primitives/Action.astro';
+import Label from '../components/primitives/Label.astro';
+import Mark from '../components/primitives/Mark.astro';
+import Note from '../components/primitives/Note.astro';
+import Spine from '../components/primitives/Spine.astro';
+import Statement from '../components/primitives/Statement.astro';
+import DefinitionList from '../components/field/DefinitionList.astro';
+import EngagementIndex from '../components/field/EngagementIndex.astro';
+import FaqList from '../components/field/FaqList.astro';
+import Invitation from '../components/field/Invitation.astro';
+import StepList from '../components/field/StepList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { offers } from '../data/home';
+import { faqs } from '../data/faq';
+import {
+  capabilitySection,
+  faqSection,
+  hero,
+  homeMeta,
+  invitation,
+  judgment,
+  offerSection,
+  proof,
+  processSection,
+} from '../data/home';
+import { processSteps } from '../data/process';
+import { engagements } from '../data/services';
 import { integrations } from '../lib/site';
 ---
 
-<BaseLayout
-  title="Hello Machine — Expert-led websites, accelerated by AI"
-  description="Expert-led websites, accelerated by AI."
-  path="/"
-  headerTheme="ink"
->
-  <header class="site-header">
-    <a class="wordmark" href="/">HELLO MACHINE<span>●</span></a><nav>
-      <a href="#index">Ways to work</a><a class="book" href={integrations.booking.url}
-        >Book a call ↗</a
-      >
-    </nav>
-  </header>
-  <main>
-    <section class="hero">
-      <div class="eyebrow">Independent digital studio / Bogotá + worldwide</div><h1>
-        Expert-led<br />websites,<br /><i>accelerated</i><br />by AI.
-      </h1><div class="hero-aside">
-        <p>We make complex digital work clear, useful, and ready for what comes next.</p><a
-          class="circle-link"
-          href="#index"
-          aria-label="See ways to work">↓</a
-        >
-      </div><div class="hero-foot">
-        <span>01—05 / Position</span><span>Strategy · Design · Build · Care</span>
+<BaseLayout title={homeMeta.title} description={homeMeta.description} path="/">
+  {/* ---- 01 Position ------------------------------------------------- */}
+  <Sheet id="position" size="open" labelledby="position-title" class="position">
+    <div class="position__grid">
+      <Spine class="position__spine" text="Hello Machine — field sheet" tone="editorial" />
+
+      <div class="position__head">
+        <Label class="position__label" index="01" text="Position" tone="ink" />
+        <Statement
+          statement={hero.statement}
+          as="h1"
+          size={1}
+          tone="editorial"
+          id="position-title"
+        />
       </div>
-    </section>
-    <section id="index" class="index-section">
-      <div class="section-kicker">02 / The living index</div><div class="index-layout">
-        <div class="index-list" role="tablist" aria-label="Ways to work with Hello Machine">
-          {
-            offers.slice(0, 3).map((offer, index) => (
-              <button
-                class:list={['index-item', { active: index === 0 }]}
-                role="tab"
-                aria-selected={index === 0}
-                aria-controls={`response-${index}`}
-                id={`tab-${index}`}
-                data-index={index}
-              >
-                <>
-                  <span class="index-number">0{index + 1}</span>
-                  <span class="index-title">{offer.name}</span>
-                  <span class="index-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </>
-              </button>
-            ))
-          }
-        </div><div class="response-panel" aria-live="polite">
-          {
-            offers.slice(0, 3).map((offer, index) => (
-              <div
-                class:list={['response', { active: index === 0 }]}
-                id={`response-${index}`}
-                role="tabpanel"
-                aria-labelledby={`tab-${index}`}
-                data-response={index}
-              >
-                <>
-                  <span class="response-label">
-                    {offer.index} / {offer.bestFor}
-                  </span>
-                  <h2>{offer.summary}</h2>
-                  <p>{offer.includes.slice(0, 3).join(' · ')}</p>
-                  <a class="text-link" href={offer.action.href}>
-                    {offer.action.label} ↗
-                  </a>
-                </>
-              </div>
-            ))
-          }
+
+      <div class="position__aside">
+        <Mark class="position__disc" shape="disc" tone="action" size="clamp(3.5rem, 8vw, 8rem)" />
+        <Note label={hero.note.label} rule="side">{hero.note.body}</Note>
+      </div>
+
+      <div class="position__standfirst">
+        <p class="lead position__lead">{hero.standfirst}</p>
+        <div class="position__actions">
+          <Action href={integrations.booking.url} size="large">Book a call</Action>
+          <Action href="#offer" variant="line">The three ways to work</Action>
         </div>
       </div>
-    </section>
-    <section class="statement">
-      <div class="section-kicker">03 / The difference</div><div class="statement-grid">
-        <h2>More leverage.<br /><em>Still human.</em></h2><div>
-          <p>
-            AI helps us move faster through research, iteration, and operations. Experienced people
-            decide what matters, what should ship, and what should never leave the studio.
-          </p><p class="small">
-            Every meaningful stage has a human owner: strategy, design, implementation, SEO/AEO,
-            quality, maintenance, and improvement.
-          </p>
-        </div>
-      </div>
-    </section>
-    <section class="experience">
-      <div class="section-kicker">04 / Selected experience</div><div class="experience-grid">
-        <div><span class="index-number">01</span><h2>Useful work<br />over loud work.</h2></div><div
-          class="experience-note"
-        >
-          <p>
-            Founder-led delivery across websites, digital systems, and the details that make them
-            hold together.
-          </p><p class="small">
-            Selected experience and case studies will be added here as they are approved for public
-            use.
-          </p><a class="text-link" href="/work">See the experience ↗</a>
-        </div>
-      </div>
-    </section>
-    <section class="closing">
-      <div class="section-kicker">05 / Next</div><h2>
-        Bring the signal.<br />We’ll shape the response.
-      </h2><a class="primary" href={integrations.booking.url}>Book a call ↗</a><a
-        class="secondary"
-        href="/contact">Or send a note</a
-      >
-    </section>
-  </main>
+
+      <dl class="position__meta">
+        {
+          hero.meta.map((entry) => (
+            <div class="position__meta-cell">
+              <dt class="label">{entry.label}</dt>
+              <dd>{entry.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </Sheet>
+
+  {/* ---- 02 The offer ------------------------------------------------ */}
+  <Sheet id="offer" rule="heavy" labelledby="offer-title">
+    <SheetHead
+      index={offerSection.index}
+      label={offerSection.label}
+      statement={offerSection.statement}
+      note={offerSection.note}
+      id="offer-title"
+      size={3}
+      layout="split"
+    />
+    <EngagementIndex engagements={engagements} />
+  </Sheet>
+
+  {/* ---- 03 The division of labour ----------------------------------- */}
+  <Sheet id="judgment" tone="signal" size="open" labelledby="judgment-title" class="judgment">
+    <div class="judgment__head">
+      <Label class="judgment__label" index={judgment.index} text={judgment.label} tone="ink" />
+      <Statement
+        statement={judgment.statement}
+        as="h2"
+        size={2}
+        tone="editorial"
+        id="judgment-title"
+      />
+      <p class="judgment__lead">{judgment.lead}</p>
+    </div>
+
+    <div class="judgment__columns">
+      {
+        judgment.columns.map((column) => (
+          <section class="judgment__column" aria-labelledby={`judgment-${column.key}`}>
+            <p class="label judgment__column-label">{column.label}</p>
+            <h3 class="judgment__column-title" id={`judgment-${column.key}`}>
+              {column.title}
+            </h3>
+            <ul class="judgment__list" role="list">
+              {column.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+
+    <p class="judgment__assurance">{judgment.assurance}</p>
+  </Sheet>
+
+  {/* ---- 04 Capability ----------------------------------------------- */}
+  <Sheet id="capability" tone="deep" labelledby="capability-title">
+    <SheetHead
+      index={capabilitySection.index}
+      label={capabilitySection.label}
+      statement={capabilitySection.statement}
+      note={capabilitySection.note}
+      id="capability-title"
+      size={3}
+      layout="stack"
+    />
+    <DefinitionList items={capabilitySection.items} columns={2} numbered />
+  </Sheet>
+
+  {/* ---- 05 Evidence ------------------------------------------------- */}
+  <Sheet id="evidence" rule="hair" labelledby="evidence-title">
+    <SheetHead
+      index={proof.index}
+      label={proof.label}
+      statement={proof.statement}
+      lead={proof.lead}
+      id="evidence-title"
+      size={3}
+      layout="offset"
+    />
+
+    <ol class="evidence" role="list">
+      {
+        proof.points.map((point) => (
+          <li class="evidence__point">
+            <p class="label evidence__index">{point.index}</p>
+            <h3 class="evidence__title">{point.title}</h3>
+            <p class="evidence__description">{point.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <Action class="evidence__action" href={proof.action.href} variant="ghost">
+      {proof.action.label}
+    </Action>
+  </Sheet>
+
+  {/* ---- 06 Process -------------------------------------------------- */}
+  <Sheet id="process" size="tight" rule="hair" labelledby="process-title">
+    <SheetHead
+      index={processSection.index}
+      label={processSection.label}
+      statement={processSection.statement}
+      note={processSection.note}
+      id="process-title"
+      size={3}
+      layout="split"
+    />
+    <StepList steps={processSteps} variant="compact" />
+    <Action class="process__action" href={processSection.action.href} variant="line">
+      {processSection.action.label}
+    </Action>
+  </Sheet>
+
+  {/* ---- 07 Questions ------------------------------------------------ */}
+  <Sheet id="questions" tone="deep" labelledby="questions-title">
+    <SheetHead
+      index={faqSection.index}
+      label={faqSection.label}
+      statement={faqSection.statement}
+      id="questions-title"
+      size={3}
+      layout="stack"
+    />
+    <FaqList faqs={faqs} />
+  </Sheet>
+
+  {/* ---- 08 Invitation ----------------------------------------------- */}
+  <Invitation
+    index={invitation.index}
+    label={invitation.label}
+    statement={invitation.statement}
+    lead={invitation.lead}
+    expectations={invitation.expectations}
+  />
 </BaseLayout>
-<script>
-  const items = document.querySelectorAll<HTMLButtonElement>('.index-item');
-  const responses = document.querySelectorAll<HTMLElement>('.response');
-  items.forEach((item) =>
-    item.addEventListener('click', () => {
-      const index = item.dataset.index;
-      items.forEach((el) => {
-        const active = el === item;
-        el.classList.toggle('active', active);
-        el.setAttribute('aria-selected', String(active));
-      });
-      responses.forEach((panel) =>
-        panel.classList.toggle('active', panel.dataset.response === index),
-      );
-    }),
-  );
-</script>
+
 <style>
-  :global(html) {
-    scroll-behavior: smooth;
+  /* =====================================================================
+     01 Position — the declaration
+     ===================================================================== */
+
+  .position__grid {
+    display: grid;
+    gap: var(--space-xl);
   }
-  :global(body) {
+
+  .position__label {
+    margin-block-end: var(--space-m);
+  }
+
+  .position__disc {
+    margin-block-end: var(--space-l);
+  }
+
+  .position__lead {
+    max-width: 30ch;
+    font-size: var(--step-2);
+    line-height: 1.15;
+  }
+
+  .position__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    margin-block-start: var(--space-xl);
+  }
+
+  .position__meta {
+    display: grid;
+    gap: var(--space-m);
     margin: 0;
-    background: #fff;
-    color: #111;
-    font-family: Arial, sans-serif;
+    padding-block-start: var(--space-s);
+    border-block-start: var(--rule-hair) solid var(--rule);
   }
-  .site-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 22px 4vw;
-    border-bottom: 1px solid #111;
-    font-size: 13px;
-    font-weight: 700;
+
+  .position__meta dt {
+    margin-block-end: var(--space-3xs);
   }
-  .site-header a {
-    color: inherit;
-    text-decoration: none;
+
+  .position__meta dd {
+    margin: 0;
+    font-size: var(--step--1);
+    letter-spacing: var(--track-tight);
   }
-  .wordmark span {
-    color: #ff5038;
-    margin-left: 4px;
+
+  @media (min-width: 40rem) {
+    .position__meta {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-l);
+    }
   }
-  .site-header nav {
-    display: flex;
-    gap: 28px;
-    align-items: center;
+
+  @media (min-width: 64rem) {
+    .position__grid {
+      grid-template-columns: auto minmax(0, 1fr) var(--width-note);
+      column-gap: var(--space-2xl);
+      row-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .position__spine {
+      grid-row: 1 / 3;
+      align-self: stretch;
+    }
+
+    .position__head {
+      grid-column: 2 / 4;
+    }
+
+    .position__aside {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .position__standfirst {
+      grid-column: 2;
+      grid-row: 2;
+      /* Stepped in from the headline: the eye drops and moves right, which is
+         the asymmetry the direction asks for. */
+      padding-inline-start: 14%;
+    }
+
+    .position__meta {
+      grid-column: 2 / 4;
+      margin-block-start: var(--space-l);
+    }
   }
-  .book,
-  .primary {
-    background: #111;
-    color: #fff !important;
-    padding: 13px 18px;
-    border-radius: 100px;
+
+  /* =====================================================================
+     03 The division of labour — the one loud field on this page
+     ===================================================================== */
+
+  .judgment__label {
+    margin-block-end: var(--space-m);
   }
-  .hero,
-  .index-section,
-  .statement,
-  .experience,
-  .closing {
-    padding: 7vw 4vw;
-  }
-  .hero {
-    min-height: 680px;
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-content: start;
-    border-bottom: 1px solid #111;
-  }
-  .eyebrow,
-  .section-kicker,
-  .response-label,
-  .hero-foot {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-  .hero h1 {
-    font-size: clamp(70px, 12vw, 175px);
-    line-height: 0.78;
-    letter-spacing: -0.095em;
-    margin: 10vh 0 0;
-    grid-column: 1/3;
-  }
-  .hero h1 i {
-    font-style: normal;
-    color: #ff5038;
-  }
-  .hero-aside {
-    grid-column: 2;
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    margin-top: 5vh;
-    max-width: 470px;
-    font: clamp(20px, 2.6vw, 34px)/1.05 Georgia;
-  }
-  .circle-link {
-    border: 1px solid #111;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    display: grid;
-    place-items: center;
-    color: #111;
-    text-decoration: none;
-    font: 24px Arial;
-  }
-  .hero-foot {
-    position: absolute;
-    bottom: 25px;
-    left: 4vw;
-    right: 4vw;
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid #111;
-    padding-top: 12px;
-  }
-  .index-section {
-    background: #fff;
-  }
-  .index-layout {
-    display: grid;
-    grid-template-columns: 1.25fr 0.75fr;
-    margin-top: 5vw;
-  }
-  .index-list {
-    border-top: 2px solid #111;
-  }
-  .index-item {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 10% 1fr 8%;
-    align-items: center;
-    background: #fff;
-    border: 0;
-    border-bottom: 1px solid #bbb;
-    padding: 24px 0;
-    text-align: left;
-    cursor: pointer;
-    color: #111;
-  }
-  .index-item:hover,
-  .index-item:focus-visible,
-  .index-item.active {
-    background: #c8ff4d;
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-  .index-item:focus-visible {
-    outline: 2px solid #ff5038;
-    outline-offset: -2px;
-  }
-  .index-number {
-    font-size: 12px;
-  }
-  .index-title {
-    font-size: clamp(28px, 4vw, 64px);
-    letter-spacing: -0.06em;
-  }
-  .index-arrow {
-    font-size: 26px;
-  }
-  .response-panel {
-    padding: 4vw 0 0 7vw;
-  }
-  .response {
-    display: none;
-  }
-  .response.active {
-    display: block;
-  }
-  .response h2 {
-    font-size: clamp(38px, 5vw, 74px);
-    line-height: 0.88;
-    letter-spacing: -0.075em;
-    margin: 25px 0;
-  }
-  .response p,
-  .statement p,
-  .experience-note p {
-    font-size: 18px;
+
+  .judgment__lead {
+    max-width: var(--measure);
+    margin-block-start: var(--space-l);
+    font-size: var(--step-1);
     line-height: 1.3;
-    max-width: 390px;
+    letter-spacing: var(--track-tight);
+    color: var(--ink-soft);
   }
-  .text-link {
-    display: inline-block;
-    margin-top: 22px;
-    color: #111;
-    text-decoration: underline;
-    text-underline-offset: 5px;
-  }
-  .statement {
-    background: #f2f2ed;
-    border-top: 1px solid #111;
-  }
-  .statement-grid,
-  .experience-grid {
+
+  .judgment__columns {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8vw;
-    margin-top: 6vw;
+    gap: var(--space-xl);
+    margin-block-start: var(--space-2xl);
   }
-  .statement h2,
-  .experience h2 {
-    font-size: clamp(55px, 8vw, 120px);
-    line-height: 0.8;
-    letter-spacing: -0.085em;
+
+  .judgment__column {
+    padding-block-start: var(--space-s);
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .judgment__column-label {
+    color: var(--ink-soft);
+  }
+
+  .judgment__column-title {
+    max-width: 18ch;
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
+  }
+
+  .judgment__list {
+    display: grid;
+    gap: 0;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+  }
+
+  .judgment__list > li {
+    padding-block: var(--space-xs);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .judgment__assurance {
+    max-width: 40ch;
+    margin-block-start: var(--space-2xl);
+    padding-inline-start: var(--space-m);
+    border-inline-start: var(--rule-heavy) solid var(--editorial);
+    font-size: var(--step-1);
+    line-height: 1.28;
+    letter-spacing: var(--track-tight);
+  }
+
+  @media (min-width: 56rem) {
+    .judgment__columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-2xl);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .judgment__assurance {
+      margin-inline-start: 50%;
+    }
+  }
+
+  /* =====================================================================
+     05 Evidence
+     ===================================================================== */
+
+  .evidence {
+    display: grid;
+    gap: 0;
     margin: 0;
+    padding: 0;
+    list-style: none;
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
   }
-  .statement em {
-    font-style: normal;
-    color: #ff5038;
+
+  .evidence__point {
+    padding-block: var(--space-l);
+    border-block-end: var(--rule-hair) solid var(--rule);
   }
-  .small {
-    font-size: 14px !important;
-    color: #686863;
+
+  .evidence__index {
+    color: var(--signal);
   }
-  .experience {
-    border-top: 1px solid #111;
+
+  .evidence__title {
+    max-width: 16ch;
+    margin-block-start: var(--space-s);
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
   }
-  .experience-note {
-    padding-top: 2vw;
+
+  .evidence__description {
+    max-width: 40ch;
+    margin-block-start: var(--space-s);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--ink-soft);
   }
-  .closing {
-    background: #c8ff4d;
-    border-top: 1px solid #111;
-    min-height: 430px;
+
+  .evidence__action {
+    margin-block-start: var(--space-xl);
   }
-  .closing h2 {
-    font-size: clamp(60px, 10vw, 150px);
-    line-height: 0.78;
-    letter-spacing: -0.09em;
-    margin: 9vw 0 5vw;
-  }
-  .primary,
-  .secondary {
-    display: inline-block;
-    text-decoration: none;
-    margin-right: 18px;
-  }
-  .secondary {
-    color: #111;
-    text-decoration: underline;
-    text-underline-offset: 5px;
-  }
-  @media (max-width: 720px) {
-    .site-header {
-      padding: 18px 6vw;
+
+  @media (min-width: 56rem) {
+    .evidence {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-l);
     }
-    .site-header nav a:first-child {
-      display: none;
-    }
-    .hero,
-    .index-section,
-    .statement,
-    .experience,
-    .closing {
-      padding: 15vw 6vw;
-    }
-    .hero {
-      min-height: 680px;
-      display: block;
-    }
-    .hero h1 {
-      font-size: 22vw;
-      margin-top: 18vh;
-    }
-    .hero-aside {
-      margin-top: 12vh;
-    }
-    .hero-foot {
-      left: 6vw;
-      right: 6vw;
-      display: block;
-      line-height: 2;
-    }
-    .hero-foot span {
-      display: block;
-    }
-    .index-layout,
-    .statement-grid,
-    .experience-grid {
-      display: block;
-    }
-    .response-panel {
-      padding: 14vw 0 0;
-    }
-    .index-title {
-      font-size: 9vw;
-    }
-    .statement-grid > div {
-      margin-top: 14vw;
-    }
-    .experience-note {
-      padding-top: 12vw;
-    }
-    .closing h2 {
-      font-size: 17vw;
-      margin: 25vw 0 12vw;
+
+    .evidence__point + .evidence__point {
+      padding-inline-start: var(--space-l);
+      border-inline-start: var(--rule-hair) solid var(--rule);
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    :global(html) {
-      scroll-behavior: auto;
-    }
-    .index-item {
-      transition: none;
-    }
+
+  /* =====================================================================
+     06 Process
+     ===================================================================== */
+
+  .process__action {
+    margin-block-start: var(--space-xl);
   }
 </style>

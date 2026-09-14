@@ -1,0 +1,198 @@
+---
+/**
+ * Privacy — a factual notice, written from the implementation.
+ *
+ * Every statement here is checkable against the source: no analytics script,
+ * no cookies, self-hosted fonts, and an enquiry form with no endpoint until
+ * PUBLIC_FORM_ENDPOINT is configured. The page says plainly that it is
+ * awaiting legal review rather than posing as an approved policy — see the
+ * dependency note at the top of src/data/legal.ts.
+ */
+import Sheet from '../../components/Sheet.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import Label from '../../components/primitives/Label.astro';
+import Mark from '../../components/primitives/Mark.astro';
+import Masthead from '../../components/field/Masthead.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { privacyIntro, privacyMeta, privacyPending, privacySections } from '../../data/legal';
+import { integrations } from '../../lib/site';
+---
+
+<BaseLayout title={privacyMeta.title} description={privacyMeta.description} path="/privacy/">
+  {/* ---- 01 The notice ----------------------------------------------- */}
+  <Sheet id="privacy" size="open" labelledby="page-title">
+    <Masthead
+      index="01"
+      label="Privacy"
+      statement={privacyIntro.statement}
+      lead={privacyIntro.lead}
+      note={privacyIntro.note}
+      variant="open"
+      tone="editorial"
+      size={3}
+    />
+  </Sheet>
+
+  {/* ---- 02 The clauses ---------------------------------------------- */}
+  <Sheet id="notice" rule="heavy" labelledby="notice-title">
+    <SheetHead
+      index="02"
+      label="The notice"
+      statement={{ lead: 'Written from the', mark: 'implementation', tail: '.' }}
+      id="notice-title"
+      size={3}
+      layout="split"
+      note="Each clause describes what the code does today. When the CRM, scheduler or analytics land, this page is revised in the same change."
+    />
+
+    <div class="clauses">
+      {
+        privacySections.map((section) => (
+          <section class="clause" aria-labelledby={`clause-${section.index}`}>
+            <Label class="clause__label" index={section.index} text="Clause" tone="ink" />
+            <h3 class="clause__title" id={`clause-${section.index}`}>
+              {section.title}
+            </h3>
+            <div class="prose clause__body">
+              {section.body.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+
+      <section class="clause" aria-labelledby="clause-05">
+        <Label class="clause__label" index="05" text="Clause" tone="ink" />
+        <h3 class="clause__title" id="clause-05">Who to contact</h3>
+        <div class="prose clause__body">
+          <p>
+            Write to <a href={`mailto:${integrations.contact.email}`}
+              >{integrations.contact.email}</a
+            >
+            with anything about this notice or about information you have sent us, and you will get a
+            reply from a person within one working day.
+          </p>
+        </div>
+      </section>
+    </div>
+  </Sheet>
+
+  {/* ---- 03 What is still open --------------------------------------- */}
+  <Sheet id="pending" tone="deep" labelledby="pending-title">
+    <div class="pending">
+      <div class="pending__head">
+        <Mark
+          class="pending__mark"
+          shape="cross"
+          tone="editorial"
+          size="clamp(2.5rem, 5vw, 4rem)"
+        />
+        <Label class="pending__label" index="03" text="Pending" tone="ink" />
+        <h2 class="display-3 pending__title" id="pending-title">{privacyPending.title}</h2>
+      </div>
+
+      <ul class="pending__list" role="list">
+        {privacyPending.items.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </Sheet>
+</BaseLayout>
+
+<style>
+  /* =====================================================================
+     02 The clauses
+     ===================================================================== */
+
+  .clauses {
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .clause {
+    display: grid;
+    gap: var(--space-m);
+    padding-block: var(--space-xl);
+    border-block-end: var(--rule-hair) solid var(--rule);
+  }
+
+  .clause__title {
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
+  }
+
+  .clause__body {
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 60rem) {
+    .clause {
+      grid-template-columns: 26% minmax(0, 1fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .clause__label {
+      grid-row: 1;
+    }
+
+    .clause__title {
+      grid-column: 1;
+      grid-row: 2;
+      margin-block-start: calc(var(--space-m) * -1 + var(--space-2xs));
+    }
+
+    .clause__body {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      max-width: var(--measure);
+    }
+  }
+
+  /* =====================================================================
+     03 Still open
+     ===================================================================== */
+
+  .pending {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .pending__mark {
+    margin-block-end: var(--space-m);
+  }
+
+  .pending__label {
+    margin-block-end: var(--space-m);
+  }
+
+  .pending__title {
+    max-width: 16ch;
+  }
+
+  .pending__list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .pending__list > li {
+    padding-block: var(--space-s);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 60rem) {
+    .pending {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+  }
+</style>

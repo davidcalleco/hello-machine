@@ -1,0 +1,221 @@
+---
+/**
+ * Services — the catalogue front.
+ *
+ * Composition: the page states the two axes (what the work is, how it is
+ * bought) and then publishes each axis as its own field. The practices are an
+ * index you leave through; the engagements are entries you compare in place.
+ * That difference is the whole reason the two are not one list.
+ *
+ * All copy comes from src/data/services.ts.
+ */
+import Sheet from '../../components/Sheet.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import Action from '../../components/primitives/Action.astro';
+import Mark from '../../components/primitives/Mark.astro';
+import Note from '../../components/primitives/Note.astro';
+import EngagementEntry from '../../components/field/EngagementEntry.astro';
+import IndexRow from '../../components/field/IndexRow.astro';
+import Invitation from '../../components/field/Invitation.astro';
+import Masthead from '../../components/field/Masthead.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { engagements, practices, servicesIntro, servicesMeta } from '../../data/services';
+
+const mastheadMeta = [
+  { label: 'Practices', value: practices.map((practice) => practice.shortName).join(' / ') },
+  { label: 'Engagements', value: 'Continuous / ownership / intervention' },
+  { label: 'Delivery', value: 'Founder-led, accountable after launch' },
+];
+---
+
+<BaseLayout title={servicesMeta.title} description={servicesMeta.description} path="/services/">
+  {/* ---- 01 The two axes --------------------------------------------- */}
+  <Sheet id="services" size="open" labelledby="page-title">
+    <Masthead
+      index="01"
+      label="Services"
+      statement={servicesIntro.statement}
+      lead={servicesIntro.lead}
+      note={servicesIntro.note}
+      meta={mastheadMeta}
+      variant="open"
+      tone="editorial"
+      size={2}
+    />
+  </Sheet>
+
+  {/* ---- 02 The practices -------------------------------------------- */}
+  <Sheet id="practices" rule="heavy" labelledby="practices-title">
+    <SheetHead
+      index="02"
+      label="Axis one — the practice"
+      statement={{ lead: 'What the work', mark: 'actually is', tail: '.' }}
+      id="practices-title"
+      size={3}
+      layout="offset"
+    />
+
+    <div class="practices">
+      <div class="practices__index">
+        {
+          practices.map((practice) => (
+            <IndexRow
+              index={practice.index}
+              name={practice.name}
+              line={practice.summary}
+              href={`/services/${practice.slug}/`}
+              size="large"
+            />
+          ))
+        }
+      </div>
+
+      <div class="practices__aside">
+        <Mark
+          class="practices__mark"
+          shape="cross"
+          tone="editorial"
+          size="clamp(3rem, 6vw, 5rem)"
+        />
+        <Note label="Working note / 02" rule="side">
+          Each practice attaches to the others. Most engagements start in one and quietly need a
+          little of the next — which is easier when it is the same person doing both.
+        </Note>
+      </div>
+    </div>
+  </Sheet>
+
+  {/* ---- 03 The engagements ------------------------------------------ */}
+  <Sheet id="engagements" tone="deep" labelledby="engagements-title">
+    <SheetHead
+      index="03"
+      label="Axis two — the engagement"
+      statement={{ lead: 'And three ways to', mark: 'put it to work', tail: '.' }}
+      note={servicesIntro.note}
+      id="engagements-title"
+      size={3}
+      layout="stack"
+    />
+
+    <div class="engagements">
+      {
+        engagements.map((engagement) => (
+          <EngagementEntry engagement={engagement} headingLevel="h3" />
+        ))
+      }
+    </div>
+  </Sheet>
+
+  {/* ---- 04 Cross-reference ------------------------------------------ */}
+  <Sheet id="reference" size="tight" rule="hair" labelledby="reference-title">
+    <SheetHead
+      index="04"
+      label="Cross-reference"
+      statement={{ lead: 'Before you', mark: 'choose', tail: '.' }}
+      id="reference-title"
+      size={3}
+      layout="split"
+      note="Pick one practice and one engagement — or describe the problem and let us do the picking."
+    />
+
+    <div class="reference">
+      <IndexRow
+        index="A"
+        name="How the work runs"
+        line="Five steps, each with a named owner."
+        href="/process/"
+      />
+      <IndexRow
+        index="B"
+        name="What we can show you"
+        line="Evidence today, case studies in preparation."
+        href="/work/"
+      />
+      <IndexRow
+        index="C"
+        name="Who is accountable"
+        line="An independent, founder-led studio."
+        href="/about/"
+      />
+    </div>
+
+    <Action class="reference__action" href="/contact/" variant="ghost">Describe the problem</Action>
+  </Sheet>
+
+  {/* ---- 05 Invitation ----------------------------------------------- */}
+  <Invitation
+    index="05"
+    label="Invitation"
+    statement={{ lead: 'Tell us which', mark: 'part is stuck', tail: '.' }}
+    lead="A short call is usually enough to work out which practice and which engagement fit — including the case where the honest recommendation is smaller than the one you came in with."
+    expectations={[
+      'Thirty minutes, no deck, no pressure',
+      'You describe the situation; we ask about constraints and outcomes',
+      'You leave with a direction, including “not yet” if that is the honest one',
+    ]}
+  />
+</BaseLayout>
+
+<style>
+  /* =====================================================================
+     02 The practices — an index you leave through
+     ===================================================================== */
+
+  .practices {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  .practices__index {
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .practices__mark {
+    margin-block-end: var(--space-m);
+  }
+
+  @media (min-width: 64rem) {
+    .practices {
+      grid-template-columns: minmax(0, 1fr) var(--width-note);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .practices__aside {
+      /* Parked in the margin, dropped below the first row so the note reads
+         as an annotation on the list rather than as its heading. */
+      padding-block-start: var(--space-2xl);
+    }
+  }
+
+  /* =====================================================================
+     03 The engagements — entries compared in place
+     ===================================================================== */
+
+  .engagements > :last-child {
+    border-block-end: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  /* =====================================================================
+     04 Cross-reference
+     ===================================================================== */
+
+  .reference {
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .reference__action {
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 56rem) {
+    .reference {
+      /* Stepped in from the section head: a quiet list, not a second index. */
+      margin-inline-start: 16%;
+    }
+
+    .reference__action {
+      margin-inline-start: 16%;
+    }
+  }
+</style>

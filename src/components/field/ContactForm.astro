@@ -1,0 +1,356 @@
+---
+/**
+ * The enquiry form.
+ *
+ * HUBSPOT READINESS — field names match HubSpot contact properties (see the
+ * header of src/data/contact.ts). Wiring is a matter of setting
+ * PUBLIC_FORM_ENDPOINT; no markup here changes.
+ *
+ * Until an endpoint exists the form is rendered with its fieldset disabled
+ * and a notice pointing at the email route. That is deliberate: a form that
+ * accepts input and then drops it is worse than one that says it is not
+ * connected yet. Everything else — labels, hints, required marking, error
+ * affordances, consent — is already in place for the wiring.
+ *
+ * Spam handling is a honeypot only. Server-side verification (HubSpot's own,
+ * or a challenge) is a launch dependency, not something a static page can do.
+ */
+import Action from '../primitives/Action.astro';
+import { formCopy, formFields } from '../../data/contact';
+import { integrations } from '../../lib/site';
+
+interface Props {
+  id?: string;
+  headingId?: string;
+}
+
+const { id = 'enquiry', headingId = 'enquiry-title' } = Astro.props;
+const configured = integrations.contact.isConfigured;
+---
+
+<div class="form-block" id={id}>
+  <div class="form-block__head">
+    <p class="label form-block__label">{formCopy.index} / {formCopy.label}</p>
+    <h2 class="form-block__title" id={headingId}>{formCopy.title}</h2>
+  </div>
+
+  {
+    !configured && (
+      <p class="form-block__pending" id={`${id}-pending`}>
+        <span class="label form-block__pending-label">Not connected yet</span>
+        {formCopy.pendingNote}
+        <a class="form-block__pending-link" href={`mailto:${integrations.contact.email}`}>
+          {integrations.contact.email}
+        </a>
+      </p>
+    )
+  }
+
+  <form
+    class="form-block__form"
+    method="post"
+    action={configured ? integrations.contact.endpoint : undefined}
+    aria-describedby={configured ? undefined : `${id}-pending`}
+    novalidate={false}
+  >
+    <fieldset class="form-block__fields" disabled={!configured}>
+      <legend class="visually-hidden">Enquiry details</legend>
+
+      {
+        formFields.map((field) => {
+          const fieldId = `${id}-${field.name}`;
+          const hintId = field.hint ? `${fieldId}-hint` : undefined;
+
+          return (
+            <div class:list={['field', `field--${field.span ?? 'full'}`]}>
+              <label class="field__label" for={fieldId}>
+                {field.label}
+                {field.required ? (
+                  <span class="field__required" title="Required">
+                    <span aria-hidden="true">*</span>
+                    <span class="visually-hidden">(required)</span>
+                  </span>
+                ) : (
+                  <span class="field__optional">Optional</span>
+                )}
+              </label>
+
+              {field.hint && (
+                <p class="field__hint" id={hintId}>
+                  {field.hint}
+                </p>
+              )}
+
+              {field.type === 'textarea' ? (
+                <textarea
+                  class="field__control field__control--area"
+                  id={fieldId}
+                  name={field.name}
+                  rows="6"
+                  required={field.required}
+                  aria-describedby={hintId}
+                />
+              ) : field.type === 'select' ? (
+                <select
+                  class="field__control field__control--select"
+                  id={fieldId}
+                  name={field.name}
+                  required={field.required}
+                  aria-describedby={hintId}
+                  data-prefill={field.name}
+                >
+                  {field.options?.map((option) => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  class="field__control"
+                  id={fieldId}
+                  name={field.name}
+                  type={field.type}
+                  required={field.required}
+                  autocomplete={field.autocomplete}
+                  aria-describedby={hintId}
+                />
+              )}
+            </div>
+          );
+        })
+      }
+
+      {
+        /* Honeypot. Hidden from sight and from assistive technology, and
+          skipped in the tab order — a real person never reaches it. */
+      }
+      <div class="field__trap" aria-hidden="true">
+        <label for={`${id}-company-website`}>Leave this field empty</label>
+        <input
+          id={`${id}-company-website`}
+          name="company_website"
+          type="text"
+          tabindex="-1"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="field field--full field--consent">
+        <input
+          class="field__checkbox"
+          id={`${id}-consent`}
+          name="consent"
+          type="checkbox"
+          required
+        />
+        <label class="field__consent-label" for={`${id}-consent`}>{formCopy.consentLabel}</label>
+      </div>
+
+      <div class="field field--full form-block__submit">
+        <Action type="submit" size="large">{formCopy.submit}</Action>
+        <p class="field__privacy">
+          {formCopy.privacyNote}
+          <a href="/privacy/">{formCopy.privacyLink}</a>.
+        </p>
+      </div>
+    </fieldset>
+  </form>
+</div>
+
+<script>
+  // Carries the interest through from links like /contact/?interest=ownership.
+  // Enhancement only: without it the visitor picks from the list themselves.
+  const params = new URLSearchParams(window.location.search);
+
+  for (const select of document.querySelectorAll<HTMLSelectElement>('[data-prefill]')) {
+    const value = params.get(select.dataset.prefill ?? '');
+    if (!value) continue;
+    const match = Array.from(select.options).some((option) => option.value === value);
+    if (match) select.value = value;
+  }
+</script>
+
+<style>
+  .form-block__label {
+    color: var(--ink-soft);
+  }
+
+  .form-block__title {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--step-4);
+    font-weight: 500;
+    line-height: var(--leading-display);
+    letter-spacing: var(--track-display);
+  }
+
+  .form-block__pending {
+    max-width: var(--measure);
+    margin-block-start: var(--space-l);
+    padding-inline-start: var(--space-m);
+    border-inline-start: var(--rule-heavy) solid var(--editorial);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  .form-block__pending-label {
+    display: block;
+    margin-block-end: var(--space-3xs);
+    color: var(--editorial);
+  }
+
+  .form-block__pending-link {
+    display: inline-block;
+    margin-block-start: var(--space-2xs);
+    color: var(--ink);
+    text-decoration-color: var(--signal);
+  }
+
+  .form-block__form {
+    margin-block-start: var(--space-xl);
+  }
+
+  .form-block__fields {
+    display: grid;
+    gap: var(--space-l);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+    padding-block-start: var(--space-l);
+  }
+
+  /* A disabled fieldset stays readable on purpose: the form is being shown as
+     the structure it is, not hidden until the integration lands. */
+  .form-block__fields:disabled {
+    opacity: 0.72;
+  }
+
+  .field {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2xs);
+  }
+
+  .field__label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+
+  .field__required {
+    color: var(--editorial);
+  }
+
+  .field__optional {
+    color: var(--ink-soft);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .field__hint {
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  .field__control {
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-2xs) 0;
+    background: none;
+    border: 0;
+    /* Ruled paper: fields are lines on the sheet, not boxes floating on it. */
+    border-block-end: var(--rule-hair) solid var(--rule-strong);
+    border-radius: 0;
+    font-size: var(--step-0);
+    color: var(--ink);
+    transition: border-color var(--duration-fast) var(--ease);
+  }
+
+  .field__control:focus-visible {
+    border-block-end-color: var(--signal);
+  }
+
+  .field__control--area {
+    min-height: 8rem;
+    line-height: var(--leading-body);
+    resize: vertical;
+  }
+
+  .field__control--select {
+    /* The native control keeps its own accessible picker on every platform;
+       only the resting appearance is brought into the sheet. */
+    appearance: none;
+    padding-inline-end: var(--space-m);
+    cursor: pointer;
+  }
+
+  /* Validation styling only once the visitor has tried to submit or has left
+     a field — never on an untouched empty form. */
+  .field__control:user-invalid {
+    border-block-end-color: var(--editorial);
+  }
+
+  .field__trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .field--consent {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-xs);
+    padding-block-start: var(--space-s);
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .field__checkbox {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0.2rem 0 0;
+    accent-color: var(--signal);
+  }
+
+  .field__consent-label {
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+
+  .form-block__submit {
+    gap: var(--space-m);
+    justify-items: start;
+    padding-block-start: var(--space-s);
+  }
+
+  .field__privacy {
+    max-width: var(--measure);
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  .field__privacy a {
+    color: var(--ink);
+    text-decoration-color: var(--signal);
+  }
+
+  @media (min-width: 46rem) {
+    .form-block__fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--space-l);
+    }
+
+    .field--full {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,233 @@
+---
+/**
+ * Work — evidence, not a portfolio.
+ *
+ * The composition is deliberately the opposite of a case-study grid: three
+ * long entries down a single spine, each one a thing that is true today. The
+ * reserved case-study slots in src/data/work.ts are NOT rendered — an empty
+ * card marked "coming soon" weakens the page more than its absence does.
+ */
+import Sheet from '../../components/Sheet.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import Action from '../../components/primitives/Action.astro';
+import Label from '../../components/primitives/Label.astro';
+import Mark from '../../components/primitives/Mark.astro';
+import Note from '../../components/primitives/Note.astro';
+import Invitation from '../../components/field/Invitation.astro';
+import Masthead from '../../components/field/Masthead.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { evidence, preparation, workIntro, workMeta } from '../../data/work';
+
+const mastheadMeta = [
+  { label: 'Published today', value: 'This site, and the delivery history behind it' },
+  { label: 'On request', value: 'Relevant past work, walked through on a call' },
+  { label: 'In preparation', value: 'Case studies, pending client permission' },
+];
+---
+
+<BaseLayout title={workMeta.title} description={workMeta.description} path="/work/">
+  {/* ---- 01 The position --------------------------------------------- */}
+  <Sheet id="work" size="open" labelledby="page-title">
+    <Masthead
+      index="01"
+      label="Work"
+      statement={workIntro.statement}
+      lead={workIntro.lead}
+      note={workIntro.note}
+      meta={mastheadMeta}
+      variant="open"
+      tone="editorial"
+      size={2}
+    />
+  </Sheet>
+
+  {/* ---- 02 The evidence --------------------------------------------- */}
+  <Sheet id="evidence" rule="heavy" labelledby="evidence-title">
+    <SheetHead
+      index="02"
+      label="Evidence"
+      statement={{ lead: 'What we can', mark: 'show you today', tail: '.' }}
+      id="evidence-title"
+      size={3}
+      layout="stack"
+      note="Three entries. Each is checkable — by reading this page, by asking, or by getting on a call."
+    />
+
+    <div class="record">
+      {
+        evidence.map((item) => (
+          <article class="record__item" aria-labelledby={`evidence-${item.index}`}>
+            <div class="record__head">
+              <Label index={item.index} text={item.kind} tone="ink" />
+              <h3 class="record__name" id={`evidence-${item.index}`}>
+                {item.name}
+              </h3>
+            </div>
+
+            <div class="record__body">
+              <p class="record__description">{item.description}</p>
+
+              <ul class="record__detail" role="list">
+                {item.detail.map((line) => (
+                  <li>{line}</li>
+                ))}
+              </ul>
+
+              {item.action && (
+                <Action class="record__action" href={item.action.href} variant="line">
+                  {item.action.label}
+                </Action>
+              )}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </Sheet>
+
+  {/* ---- 03 What is missing, said plainly ---------------------------- */}
+  <Sheet id="preparation" tone="deep" labelledby="preparation-title">
+    <div class="preparation">
+      <div class="preparation__head">
+        <Mark
+          class="preparation__mark"
+          shape="cross"
+          tone="editorial"
+          size="clamp(3rem, 7vw, 6rem)"
+        />
+        <Label class="preparation__label" index="03" text="Pending" tone="ink" />
+        <h2 class="display-3 preparation__title" id="preparation-title">
+          {preparation.title}
+        </h2>
+      </div>
+
+      <div class="preparation__body">
+        <p class="preparation__lead">{preparation.body}</p>
+        <Note label="Commitment" rule="top" size="large">{preparation.commitment}</Note>
+      </div>
+    </div>
+  </Sheet>
+
+  {/* ---- 04 Invitation ----------------------------------------------- */}
+  <Invitation
+    index="04"
+    label="Invitation"
+    statement={{ lead: 'Ask to see the', mark: 'relevant work', tail: '.' }}
+    lead="On a call we go through work that resembles your situation: what the brief was, what we decided, and what we would do differently. That is available before you commit to anything."
+    expectations={[
+      'Examples chosen for your situation, not a generic reel',
+      'An honest account of constraints, trade-offs and what did not work',
+      'A view of the working method, not only the finished screens',
+    ]}
+  />
+</BaseLayout>
+
+<style>
+  /* =====================================================================
+     02 Evidence — long entries down one spine
+     ===================================================================== */
+
+  .record {
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .record__item {
+    display: grid;
+    gap: var(--space-l);
+    padding-block: var(--space-xl);
+    border-block-end: var(--rule-hair) solid var(--rule);
+  }
+
+  .record__name {
+    margin-block-start: var(--space-s);
+    font-size: var(--step-4);
+    font-weight: 500;
+    line-height: var(--leading-display);
+    letter-spacing: var(--track-display);
+  }
+
+  .record__description {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: 1.32;
+    letter-spacing: var(--track-tight);
+  }
+
+  .record__detail {
+    display: grid;
+    gap: 0;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    border-block-start: var(--rule-hair) solid var(--rule);
+  }
+
+  .record__detail > li {
+    padding-block: var(--space-xs);
+    border-block-end: var(--rule-hair) solid var(--rule);
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  .record__action {
+    margin-block-start: var(--space-l);
+  }
+
+  @media (min-width: 60rem) {
+    .record__item {
+      grid-template-columns: 30% minmax(0, 1fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .record__detail {
+      max-width: 34rem;
+    }
+  }
+
+  /* =====================================================================
+     03 Pending — the part most sites would leave out
+     ===================================================================== */
+
+  .preparation {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .preparation__mark {
+    margin-block-end: var(--space-m);
+  }
+
+  .preparation__label {
+    margin-block-end: var(--space-m);
+  }
+
+  .preparation__title {
+    max-width: 14ch;
+  }
+
+  .preparation__lead {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: 1.32;
+    letter-spacing: var(--track-tight);
+    color: var(--ink-soft);
+  }
+
+  .preparation__body > :last-child {
+    margin-block-start: var(--space-xl);
+  }
+
+  @media (min-width: 60rem) {
+    .preparation {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+
+    .preparation__body {
+      /* Dropped against the heading: the answer sits below the question. */
+      padding-block-start: var(--space-2xl);
+    }
+  }
+</style>

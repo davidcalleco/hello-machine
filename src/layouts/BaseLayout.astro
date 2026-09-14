@@ -1,7 +1,14 @@
 ---
 /**
  * Shared page shell: head, skip link, header, main landmark, footer.
- * Every page uses this, so accessibility affordances cannot be forgotten.
+ *
+ * Every route uses this, so the accessibility affordances — skip link, single
+ * <main>, focus target — cannot be forgotten on a page.
+ *
+ * There is deliberately no scroll choreography here. The Field Sheet direction
+ * is static-first: a page must be complete and correct before any interaction
+ * happens, which also means nothing to disable for reduced motion and nothing
+ * that breaks without JavaScript.
  */
 import BaseHead from '../components/BaseHead.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -14,57 +21,24 @@ interface Props {
   description?: string;
   path?: string;
   noindex?: boolean;
-  headerTheme?: 'paper' | 'forest' | 'ink';
+  /** Field the header sits on, so it can match the top of the page. */
+  headerTone?: 'paper' | 'deep';
 }
 
-const { title, description, path, noindex, headerTheme = 'ink' } = Astro.props;
+const { title, description, path, noindex, headerTone = 'paper' } = Astro.props;
 ---
 
 <!doctype html>
 <html lang={site.locale}>
   <head>
     <BaseHead title={title} description={description} path={path} noindex={noindex} />
-    <script is:inline>
-      // Opt in to reveal animations before first paint, and only when the user
-      // has not asked for reduced motion. Without this flag every element is
-      // visible by default, so no-JS and reduced-motion users lose nothing.
-      if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-        document.documentElement.setAttribute('data-reveal-enabled', '');
-      }
-    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <SiteHeader theme={headerTheme} />
+    <SiteHeader tone={headerTone} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />
-
-    <script>
-      // Reveal-on-scroll. Guarded, cheap, and self-disabling: elements are
-      // unobserved once shown, and if IntersectionObserver is missing the
-      // flag is dropped so everything renders in its final state.
-      const items = document.querySelectorAll<HTMLElement>('[data-reveal]');
-
-      if (items.length > 0) {
-        if (!('IntersectionObserver' in window)) {
-          document.documentElement.removeAttribute('data-reveal-enabled');
-        } else {
-          const observer = new IntersectionObserver(
-            (entries) => {
-              for (const entry of entries) {
-                if (!entry.isIntersecting) continue;
-                entry.target.classList.add('is-revealed');
-                observer.unobserve(entry.target);
-              }
-            },
-            { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
-          );
-
-          for (const item of items) observer.observe(item);
-        }
-      }
-    </script>
   </body>
 </html>

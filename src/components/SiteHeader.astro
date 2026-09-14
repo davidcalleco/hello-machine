@@ -1,75 +1,87 @@
 ---
 /**
- * Sticky site header.
+ * The header is the sheet's first line, not a utility bar bolted above it:
+ * same mono handwriting, same index numbers, same hairline rules, same
+ * selection colour as the catalogue rows further down the page.
  *
- * The mobile navigation is a native <details> disclosure: it works with zero
- * JavaScript, is keyboard operable by default, and the small script below only
- * adds conveniences (close on Escape, close after following an in-page link).
+ * The mobile navigation is a native <details> disclosure, so it is keyboard
+ * operable and fully functional with zero JavaScript. The script below only
+ * adds conveniences (close on Escape, close after following a link).
  */
-import Button from './Button.astro';
 import LanguageToggle from './LanguageToggle.astro';
 import Wordmark from './Wordmark.astro';
-import { integrations, nav } from '../lib/site';
+import Action from './primitives/Action.astro';
+import { integrations, isCurrent, nav } from '../lib/site';
 
 interface Props {
-  theme?: 'paper' | 'forest' | 'ink';
+  tone?: 'paper' | 'deep';
 }
 
-const { theme = 'paper' } = Astro.props;
+const { tone = 'paper' } = Astro.props;
 const pathname = Astro.url.pathname;
-
-const isCurrent = (href: string) =>
-  href.startsWith('/#') ? false : href === pathname || `${href}/` === pathname;
 ---
 
-<header class:list={['site-header', `theme-${theme}`]} data-site-header>
-  <div class="shell site-header__inner">
-    <Wordmark href="/" />
+<header class:list={['masthead', `tone-${tone}`]}>
+  <div class="spread masthead__inner">
+    <Wordmark href="/" class="masthead__wordmark" />
 
-    <nav class="site-nav" aria-label="Primary">
-      <ul class="site-nav__list" role="list">
+    <nav class="masthead__nav" aria-label="Primary">
+      <ul class="masthead__list" role="list">
         {
-          nav.map((item) => (
-            <li>
-              <a
-                class="site-nav__link"
-                href={item.href}
-                aria-current={isCurrent(item.href) ? 'page' : undefined}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))
+          nav.map((item) => {
+            const current = isCurrent(item.href, pathname);
+            return (
+              <li>
+                <a
+                  class="masthead__link"
+                  href={item.href}
+                  aria-current={current ? 'page' : undefined}
+                >
+                  <span class="masthead__index" aria-hidden="true">
+                    {item.index}
+                  </span>
+                  <span class="masthead__label">{item.label}</span>
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
     </nav>
 
-    <div class="site-header__actions">
-      <LanguageToggle class="site-header__lang" />
-      <Button href={integrations.booking.url} class="site-header__cta">Book a call</Button>
+    <div class="masthead__actions">
+      <LanguageToggle class="masthead__lang" />
+      <Action href={integrations.booking.url} class="masthead__cta">Book a call</Action>
 
-      <details class="site-menu" data-site-menu>
-        <summary class="site-menu__toggle" aria-label="Menu">
-          <span class="site-menu__toggle-label" aria-hidden="true">Menu</span>
-          <span class="site-menu__icon" aria-hidden="true"></span>
+      <details class="menu" data-menu>
+        <summary class="menu__toggle">
+          <span class="menu__toggle-text">Index</span>
+          <span class="menu__rules" aria-hidden="true"></span>
         </summary>
-        <div class="site-menu__panel">
-          <nav aria-label="Primary, mobile">
-            <ul class="site-menu__list" role="list">
+        <div class="menu__panel tone-paper">
+          <nav aria-label="Primary, compact">
+            <ul class="menu__list" role="list">
               {
                 nav.map((item) => (
                   <li>
-                    <a class="site-menu__link" href={item.href}>
-                      {item.label}
+                    <a
+                      class="menu__link"
+                      href={item.href}
+                      aria-current={isCurrent(item.href, pathname) ? 'page' : undefined}
+                    >
+                      <span class="menu__index" aria-hidden="true">
+                        {item.index}
+                      </span>
+                      <span>{item.label}</span>
                     </a>
                   </li>
                 ))
               }
             </ul>
           </nav>
-          <div class="site-menu__footer">
+          <div class="menu__foot">
             <LanguageToggle />
-            <Button href={integrations.booking.url} size="large">Book a call</Button>
+            <Action href={integrations.booking.url} size="large">Book a call</Action>
           </div>
         </div>
       </details>
@@ -79,144 +91,193 @@ const isCurrent = (href: string) =>
 
 <script>
   // Progressive enhancement only: the disclosure already works without this.
-  const menu = document.querySelector<HTMLDetailsElement>('[data-site-menu]');
+  const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
 
   if (menu) {
     menu.addEventListener('click', (event) => {
       const target = event.target as HTMLElement | null;
-      if (target?.closest('.site-menu__link')) menu.open = false;
+      if (target?.closest('.menu__link')) menu.open = false;
     });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && menu.open) {
         menu.open = false;
-        menu.querySelector<HTMLElement>('.site-menu__toggle')?.focus();
+        menu.querySelector<HTMLElement>('.menu__toggle')?.focus();
       }
     });
   }
 </script>
 
 <style>
-  .site-header {
+  .masthead {
     position: sticky;
     inset-block-start: 0;
     z-index: var(--z-header);
-    background-color: var(--surface);
-    color: var(--on-surface);
-    border-block-end: var(--rule-width) solid var(--rule);
+    background-color: var(--field);
+    color: var(--ink);
+    border-block-end: var(--rule-hair) solid var(--rule-strong);
   }
 
-  .site-header__inner {
+  .masthead__inner {
     display: flex;
     align-items: center;
     gap: var(--space-m);
-    min-height: var(--header-height, 4.5rem);
-    padding-block: var(--space-2xs);
+    min-height: var(--header-height);
   }
 
-  .site-nav {
+  .masthead__wordmark {
+    margin-inline-end: auto;
+  }
+
+  /* ---- Wide navigation ---- */
+
+  .masthead__nav {
     display: none;
-    margin-inline-start: auto;
   }
 
-  .site-nav__list {
+  .masthead__list {
     display: flex;
-    align-items: center;
-    gap: clamp(var(--space-s), 1.6vw, var(--space-l));
+    align-items: stretch;
     margin: 0;
     padding: 0;
   }
 
-  .site-nav__link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
+  .masthead__link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2xs);
+    height: var(--header-height);
+    padding-inline: var(--space-m);
+    /* Hairline verticals turn the nav into a row of index cells — the same
+       device the catalogue rows use further down the page. */
+    border-inline-start: var(--rule-hair) solid var(--rule);
     font-size: var(--step--1);
+    letter-spacing: var(--track-tight);
     text-decoration: none;
-    color: var(--on-surface-muted);
-    transition: color var(--duration-fast) var(--ease-out);
+    color: var(--ink);
+    transition: background-color var(--duration-fast) var(--ease);
   }
 
-  .site-nav__link[aria-current='page'] {
-    color: var(--on-surface);
+  .masthead__list li:last-child .masthead__link {
+    border-inline-end: var(--rule-hair) solid var(--rule);
+  }
+
+  .masthead__label {
+    align-self: center;
+  }
+
+  .masthead__index {
+    align-self: center;
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+  }
+
+  /* Selection is the highlighter, here as everywhere else on the sheet. */
+  .masthead__link[aria-current='page'] {
+    background-color: var(--select);
+    color: var(--on-select);
+  }
+
+  .masthead__link[aria-current='page'] .masthead__index {
+    color: var(--ink);
   }
 
   @media (hover: hover) {
-    .site-nav__link:hover {
-      color: var(--on-surface);
+    .masthead__link:hover {
+      background-color: var(--select);
+      color: var(--on-select);
+    }
+
+    .masthead__link:hover .masthead__index {
+      color: var(--ink);
     }
   }
 
-  .site-header__actions {
+  .masthead__actions {
     display: flex;
     align-items: center;
-    gap: var(--space-s);
-    margin-inline-start: auto;
+    gap: var(--space-m);
   }
 
-  .site-header__lang,
-  .site-header__cta {
+  .masthead__lang,
+  .masthead__cta {
     display: none;
   }
 
-  /* ---- Mobile disclosure ---- */
+  /* ---- Compact disclosure ---- */
 
-  .site-menu__toggle {
-    display: inline-flex;
+  .menu__toggle {
+    display: flex;
     align-items: center;
     gap: var(--space-2xs);
     min-height: 2.75rem;
     padding-inline: var(--space-3xs);
     font-family: var(--font-mono);
     font-size: var(--step--2);
-    letter-spacing: var(--tracking-label);
+    letter-spacing: var(--track-label);
     text-transform: uppercase;
     cursor: pointer;
     list-style: none;
   }
 
-  .site-menu__toggle::-webkit-details-marker {
+  .menu__toggle::-webkit-details-marker {
     display: none;
   }
 
-  .site-menu__icon {
-    position: relative;
+  .menu__rules {
     display: block;
-    width: 1.125rem;
-    height: 0.625rem;
-    border-block: var(--rule-width) solid currentColor;
+    width: 1.25rem;
+    height: 0.5rem;
+    border-block: var(--rule-hair) solid currentColor;
   }
 
-  .site-menu[open] .site-menu__icon {
+  .menu[open] .menu__rules {
     height: 0;
     border-block-end-color: transparent;
   }
 
-  .site-menu__panel {
+  .menu__panel {
     position: absolute;
     inset-inline: 0;
     inset-block-start: 100%;
-    padding: var(--space-m) var(--gutter) var(--space-l);
-    background-color: var(--surface);
-    border-block-end: var(--rule-width) solid var(--rule);
+    padding: var(--space-s) var(--gutter) var(--space-xl);
+    background-color: var(--field);
+    color: var(--ink);
+    border-block-end: var(--rule-heavy) solid var(--rule-strong);
   }
 
-  .site-menu__list {
+  .menu__list {
     display: grid;
     margin: 0;
     padding: 0;
   }
 
-  .site-menu__link {
-    display: block;
+  .menu__link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-s);
     padding-block: var(--space-s);
-    border-block-end: var(--rule-width) solid var(--rule);
-    font-family: var(--font-display);
+    border-block-end: var(--rule-hair) solid var(--rule);
     font-size: var(--step-2);
+    font-weight: 500;
+    letter-spacing: var(--track-heading);
     text-decoration: none;
   }
 
-  .site-menu__footer {
+  .menu__link[aria-current='page'] {
+    color: var(--signal);
+  }
+
+  .menu__index {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--track-label);
+    color: var(--signal);
+  }
+
+  .menu__foot {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -224,22 +285,27 @@ const isCurrent = (href: string) =>
     margin-block-start: var(--space-l);
   }
 
-  .site-menu__footer :global(.btn) {
+  .menu__foot :global(.action) {
     width: 100%;
   }
 
-  @media (min-width: 62rem) {
-    .site-nav,
-    .site-header__lang,
-    .site-header__cta {
+  @media (min-width: 64rem) {
+    .masthead__nav,
+    .masthead__lang,
+    .masthead__cta {
       display: flex;
     }
 
-    .site-header__actions {
-      margin-inline-start: var(--space-l);
+    .masthead__inner {
+      gap: 0;
     }
 
-    .site-menu {
+    .masthead__actions {
+      gap: var(--space-m);
+      padding-inline-start: var(--space-m);
+    }
+
+    .menu {
       display: none;
     }
   }
