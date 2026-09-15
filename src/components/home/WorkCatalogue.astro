@@ -22,6 +22,7 @@ import { homeWork } from '../../data/home-v2';
             href={item.href}
             data-work={item.id}
             data-color={item.color}
+            data-note={item.note}
             role="listitem"
           >
             <>
@@ -49,7 +50,12 @@ import { homeWork } from '../../data/home-v2';
         catalogue.querySelector('.is-active')?.classList.remove('is-active');
         item.classList.add('is-active');
         preview?.setAttribute('data-color', item.getAttribute('data-color') || 'blue');
-        preview!.innerHTML = `<span class="catalogue__preview-type">${item.querySelector('small')?.textContent}</span><strong>${item.querySelector('strong')?.textContent}</strong><span>${item.getAttribute('data-work') === 'own-site' ? 'A living proof of the method.' : item.querySelector('small')?.textContent}</span>`;
+        const type = preview?.querySelector('.catalogue__preview-type');
+        const title = preview?.querySelector('strong');
+        const note = preview?.querySelector('span:last-child');
+        if (type) type.textContent = item.querySelector('small')?.textContent || '';
+        if (title) title.textContent = item.querySelector('strong')?.textContent || '';
+        if (note) note.textContent = item.getAttribute('data-note') || '';
       };
       item.addEventListener('mouseenter', update);
       item.addEventListener('focus', update);

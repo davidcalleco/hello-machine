@@ -18,7 +18,9 @@ import { homeOffers } from '../../data/home-v2';
               class:list={['offer-button', i === 0 && 'is-active']}
               role="tab"
               aria-selected={i === 0 ? 'true' : 'false'}
+              aria-controls={`offer-detail-${offer.id}`}
               data-offer={offer.id}
+              data-model-name={offer.name}
             >
               {offer.name}
               <span>{offer.descriptor}</span>
@@ -28,7 +30,11 @@ import { homeOffers } from '../../data/home-v2';
       </div><div class="offer-details">
         {
           homeOffers.map((offer, i) => (
-            <div class:list={['offer-detail', i !== 0 && 'is-hidden']} data-detail={offer.id}>
+            <div
+              id={`offer-detail-${offer.id}`}
+              class:list={['offer-detail', i !== 0 && 'is-hidden']}
+              data-detail={offer.id}
+            >
               <>
                 <ul>
                   {offer.bullets.map((b) => (
@@ -48,8 +54,8 @@ import { homeOffers } from '../../data/home-v2';
   const offers = document.querySelector('[data-offers]');
   if (offers) {
     const model = offers.querySelector('[data-model]');
-    const names = ['continuous', 'owned', 'focused'];
-    offers.querySelectorAll('[data-offer]').forEach((button, index) =>
+    const buttons = Array.from(offers.querySelectorAll<HTMLButtonElement>('[data-offer]'));
+    buttons.forEach((button, index) =>
       button.addEventListener('click', () => {
         offers.querySelector('.offer-button.is-active')?.classList.remove('is-active');
         button.classList.add('is-active');
@@ -62,7 +68,16 @@ import { homeOffers } from '../../data/home-v2';
             detail.classList.toggle('is-hidden', detailIndex !== index),
           );
         model?.setAttribute('data-color', ['blue', 'orange', 'red'][index]);
-        model?.querySelector('strong')?.replaceChildren(names[index]);
+        model?.querySelector('strong')?.replaceChildren(button.dataset.modelName || '');
+      }),
+    );
+    buttons.forEach((button, index) =>
+      button.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+        event.preventDefault();
+        buttons[
+          (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length
+        ]?.focus();
       }),
     );
   }

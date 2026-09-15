@@ -42,7 +42,8 @@ import { homeSteps } from '../../data/home-v2';
   const pipeline = document.querySelector('[data-pipeline]');
   if (pipeline) {
     const artifact = pipeline.querySelector('[data-artifact]');
-    pipeline.querySelectorAll('[data-step]').forEach((button, index) =>
+    const buttons = Array.from(pipeline.querySelectorAll<HTMLButtonElement>('[data-step]'));
+    buttons.forEach((button, index) =>
       button.addEventListener('click', () => {
         pipeline.querySelector('.is-active')?.classList.remove('is-active');
         button.classList.add('is-active');
@@ -58,6 +59,15 @@ import { homeSteps } from '../../data/home-v2';
         artifact
           ?.querySelector('strong')
           ?.replaceChildren(['brief', 'structure', 'interface', 'system'][index]);
+      }),
+    );
+    buttons.forEach((button, index) =>
+      button.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+        event.preventDefault();
+        buttons[
+          (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+        ]?.focus();
       }),
     );
   }
