@@ -8,7 +8,6 @@
  */
 import Sheet from '../Sheet.astro';
 import Action from '../primitives/Action.astro';
-import Mark from '../primitives/Mark.astro';
 import Statement from '../primitives/Statement.astro';
 import type { StatementText } from '../primitives/Statement.astro';
 import { integrations } from '../../lib/site';
@@ -37,16 +36,14 @@ const headingId = `${id}-title`;
 ---
 
 <Sheet id={id} tone={tone} size="open" labelledby={headingId}>
-  <Mark class="invitation__mark" shape="disc" tone="action" size="clamp(4rem, 9vw, 9rem)" />
-
-  <div class="invitation">
+  <div class="invitation field-grid">
     <div class="invitation__head">
       <p class="label invitation__label">{index} / {label}</p>
       <Statement
         class="invitation__statement"
         statement={statement}
         as="h2"
-        size={1}
+        size={2}
         tone="signal"
         id={headingId}
       />
@@ -84,14 +81,7 @@ const headingId = `${id}-title`;
 
 <style>
   .invitation {
-    display: grid;
-    gap: var(--space-xl);
-  }
-
-  .invitation__mark {
-    /* The one large mark on the closing sheet, parked in the margin above the
-       statement rather than centred behind it. */
-    margin-block-end: var(--space-l);
+    --field-row-gap: var(--space-2xl);
   }
 
   .invitation__label {
@@ -112,17 +102,21 @@ const headingId = `${id}-title`;
     margin: var(--space-l) 0 0;
     padding: 0;
     list-style: none;
-    border-block-start: var(--rule-hair) solid var(--rule);
   }
 
+  /* Separators between the steps, and none at either end: a rule is only
+     drawn where it divides two things. */
   .invitation__expectations > li {
     display: grid;
     grid-template-columns: 2.5rem minmax(0, 1fr);
     gap: var(--space-s);
     padding-block: var(--space-s);
-    border-block-end: var(--rule-hair) solid var(--rule);
     font-size: var(--step--1);
     line-height: 1.4;
+  }
+
+  .invitation__expectations > li + li {
+    border-block-start: var(--rule-hair) solid var(--rule);
   }
 
   .invitation__step {

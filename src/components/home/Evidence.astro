@@ -1,0 +1,80 @@
+---
+/**
+ * 05 Evidence — three points, three four-column groups.
+ *
+ * Each point opens with its own heavy rule. Three rules side by side read as
+ * one table head; the container does not add a fourth above them.
+ */
+import Sheet from '../Sheet.astro';
+import SheetHead from '../SheetHead.astro';
+import Action from '../primitives/Action.astro';
+import { proof } from '../../data/home';
+---
+
+<Sheet id="evidence" labelledby="evidence-title">
+  <SheetHead
+    index={proof.index}
+    label={proof.label}
+    statement={proof.statement}
+    lead={proof.lead}
+    id="evidence-title"
+    size={3}
+  />
+
+  <ol class="evidence field-grid" role="list">
+    {
+      proof.points.map((point) => (
+        <li class="evidence__point">
+          <p class="label evidence__index">{point.index}</p>
+          <h3 class="evidence__title">{point.title}</h3>
+          <p class="evidence__description">{point.description}</p>
+        </li>
+      ))
+    }
+  </ol>
+
+  <Action class="section-action" href={proof.action.href} variant="ghost">
+    {proof.action.label}
+  </Action>
+</Sheet>
+
+<style>
+  .evidence {
+    --field-row-gap: var(--space-xl);
+    margin: 0;
+    padding: 0;
+  }
+
+  .evidence__point {
+    padding-block-start: var(--space-s);
+    border-block-start: var(--rule-heavy) solid var(--rule-strong);
+  }
+
+  .evidence__index {
+    color: var(--signal);
+  }
+
+  .evidence__title {
+    max-width: 22ch;
+    margin-block-start: var(--space-s);
+    font-size: var(--step-2);
+    font-weight: 500;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--track-heading);
+    text-wrap: balance;
+  }
+
+  .evidence__description {
+    max-width: 42ch;
+    margin-block-start: var(--space-s);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  @media (min-width: 60rem) {
+    .evidence__point {
+      grid-column: span 4;
+    }
+  }
+</style>

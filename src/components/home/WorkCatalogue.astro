@@ -1,0 +1,170 @@
+---
+import { homeWork } from '../../data/home-v2';
+---
+
+<section class="work-scene" id="work" aria-labelledby="work-title">
+  <div class="work-scene__intro">
+    <p class="eyebrow">01 / proof</p><h2 id="work-title">Start with the work.</h2><p>
+      Browse the fields we work in. Focus a title to change the frame.
+    </p>
+  </div>
+  <div class="catalogue" data-catalogue>
+    <div class="catalogue__preview" data-preview aria-live="polite">
+      <span class="catalogue__preview-type">{homeWork[0].type}</span><strong
+        >{homeWork[0].title}</strong
+      ><span>{homeWork[0].note}</span>
+    </div>
+    <div class="catalogue__list" role="list">
+      {
+        homeWork.map((item, index) => (
+          <a
+            class:list={['catalogue__item', index === 0 && 'is-active']}
+            href={item.href}
+            data-work={item.id}
+            data-color={item.color}
+            role="listitem"
+          >
+            <>
+              <span class="catalogue__number">0{index + 1}</span>
+              <span>
+                <>
+                  <strong>{item.title}</strong>
+                  <small>{item.type}</small>
+                </>
+              </span>
+              <span aria-hidden="true">↗</span>
+            </>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+<script>
+  const catalogue = document.querySelector('[data-catalogue]');
+  if (catalogue) {
+    const preview = catalogue.querySelector('[data-preview]');
+    catalogue.querySelectorAll('[data-work]').forEach((item) => {
+      const update = () => {
+        catalogue.querySelector('.is-active')?.classList.remove('is-active');
+        item.classList.add('is-active');
+        preview?.setAttribute('data-color', item.getAttribute('data-color') || 'blue');
+        preview!.innerHTML = `<span class="catalogue__preview-type">${item.querySelector('small')?.textContent}</span><strong>${item.querySelector('strong')?.textContent}</strong><span>${item.getAttribute('data-work') === 'own-site' ? 'A living proof of the method.' : item.querySelector('small')?.textContent}</span>`;
+      };
+      item.addEventListener('mouseenter', update);
+      item.addEventListener('focus', update);
+    });
+  }
+</script>
+<style>
+  .work-scene {
+    padding: clamp(5rem, 12vw, 11rem) var(--gutter);
+    background: var(--hm-paper-deep);
+    color: var(--hm-ink);
+  }
+  .work-scene__intro {
+    display: grid;
+    gap: var(--space-m);
+    margin-bottom: var(--space-2xl);
+  }
+  .work-scene h2 {
+    max-width: 8ch;
+    margin: 0;
+    font-size: clamp(3rem, 7vw, 7rem);
+    line-height: 0.88;
+    letter-spacing: var(--track-display);
+  }
+  .work-scene__intro p:last-child {
+    max-width: 28ch;
+    color: var(--hm-ink-soft);
+  }
+  .catalogue {
+    display: grid;
+    gap: var(--space-xl);
+    max-width: 90rem;
+    margin: auto;
+  }
+  .catalogue__preview {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 20rem;
+    padding: var(--space-l);
+    background: var(--hm-blue);
+    color: var(--hm-paper);
+    transition: background-color var(--duration-base) var(--ease);
+  }
+  .catalogue__preview[data-color='orange'] {
+    background: var(--hm-orange);
+    color: var(--hm-ink);
+  }
+  .catalogue__preview[data-color='lime'] {
+    background: var(--hm-lime);
+    color: var(--hm-ink);
+  }
+  .catalogue__preview[data-color='red'] {
+    background: var(--hm-red);
+    color: var(--hm-paper);
+  }
+  .catalogue__preview-type,
+  .catalogue__item small {
+    font: var(--step--2) var(--font-mono);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+  .catalogue__preview strong {
+    max-width: 8ch;
+    font-size: clamp(3rem, 7vw, 7rem);
+    line-height: 0.85;
+    letter-spacing: var(--track-display);
+  }
+  .catalogue__list {
+    border-top: 2px solid var(--hm-ink);
+  }
+  .catalogue__item {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    gap: var(--space-m);
+    align-items: center;
+    padding: var(--space-m) 0;
+    border-bottom: 1px solid var(--hm-hairline);
+    text-decoration: none;
+    color: inherit;
+  }
+  .catalogue__item strong {
+    display: block;
+    font-size: var(--step-2);
+    font-weight: 500;
+  }
+  .catalogue__item small {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--hm-ink-soft);
+  }
+  .catalogue__number {
+    font: var(--step--2) var(--font-mono);
+    color: var(--hm-blue);
+  }
+  .catalogue__item:focus-visible,
+  .catalogue__item:hover,
+  .catalogue__item.is-active {
+    background: var(--hm-lime);
+    outline-offset: -3px;
+  }
+  @media (min-width: 55rem) {
+    .work-scene__intro {
+      grid-template-columns: 1fr 2fr;
+      align-items: end;
+    }
+    .catalogue {
+      grid-template-columns: 0.8fr 1.2fr;
+      align-items: stretch;
+    }
+    .catalogue__preview {
+      min-height: 32rem;
+    }
+    .catalogue__list {
+      align-self: end;
+    }
+  }
+</style>

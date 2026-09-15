@@ -1,0 +1,194 @@
+---
+import { homeOffers } from '../../data/home-v2';
+---
+
+<section class="offer-scene" id="offer" aria-labelledby="offer-title">
+  <div class="offer-scene__intro">
+    <p class="eyebrow">03 / choose a route</p><h2 id="offer-title">
+      Same standard.<br /><em>Different tempo.</em>
+    </h2>
+  </div><div class="offer-picker" data-offers>
+    <div class="offer-model" data-model data-color="blue">
+      <span>01 / route</span><strong>continuous</strong><i aria-hidden="true"></i>
+    </div><div class="offer-choice">
+      <div class="offer-choice__buttons" role="tablist" aria-label="Ways to work">
+        {
+          homeOffers.map((offer, i) => (
+            <button
+              class:list={['offer-button', i === 0 && 'is-active']}
+              role="tab"
+              aria-selected={i === 0 ? 'true' : 'false'}
+              data-offer={offer.id}
+            >
+              {offer.name}
+              <span>{offer.descriptor}</span>
+            </button>
+          ))
+        }
+      </div><div class="offer-details">
+        {
+          homeOffers.map((offer, i) => (
+            <div class:list={['offer-detail', i !== 0 && 'is-hidden']} data-detail={offer.id}>
+              <>
+                <ul>
+                  {offer.bullets.map((b) => (
+                    <li>{b}</li>
+                  ))}
+                </ul>
+                <a href={`/contact/?interest=${offer.id}`}>Talk it through ↗</a>
+              </>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  const offers = document.querySelector('[data-offers]');
+  if (offers) {
+    const model = offers.querySelector('[data-model]');
+    const names = ['continuous', 'owned', 'focused'];
+    offers.querySelectorAll('[data-offer]').forEach((button, index) =>
+      button.addEventListener('click', () => {
+        offers.querySelector('.offer-button.is-active')?.classList.remove('is-active');
+        button.classList.add('is-active');
+        offers
+          .querySelectorAll('[role=tab]')
+          .forEach((tab) => tab.setAttribute('aria-selected', tab === button ? 'true' : 'false'));
+        offers
+          .querySelectorAll('[data-detail]')
+          .forEach((detail, detailIndex) =>
+            detail.classList.toggle('is-hidden', detailIndex !== index),
+          );
+        model?.setAttribute('data-color', ['blue', 'orange', 'red'][index]);
+        model?.querySelector('strong')?.replaceChildren(names[index]);
+      }),
+    );
+  }
+</script>
+<style>
+  .offer-scene {
+    padding: clamp(5rem, 12vw, 11rem) var(--gutter);
+    background: var(--hm-paper);
+    color: var(--hm-ink);
+  }
+  .offer-scene__intro,
+  .offer-picker {
+    max-width: 90rem;
+    margin: auto;
+  }
+  .offer-scene h2 {
+    margin: var(--space-m) 0 clamp(3rem, 7vw, 7rem);
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 0.86;
+    letter-spacing: var(--track-display);
+  }
+  .offer-scene h2 em {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--hm-red);
+  }
+  .offer-picker {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+  .offer-model {
+    display: flex;
+    min-height: 25rem;
+    padding: var(--space-l);
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--hm-blue);
+    color: var(--hm-paper);
+    overflow: hidden;
+  }
+  .offer-model[data-color='orange'] {
+    background: var(--hm-orange);
+    color: var(--hm-ink);
+  }
+  .offer-model[data-color='red'] {
+    background: var(--hm-red);
+  }
+  .offer-model span {
+    font: var(--step--2) var(--font-mono);
+    text-transform: uppercase;
+  }
+  .offer-model strong {
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 0.8;
+    letter-spacing: var(--track-display);
+  }
+  .offer-model i {
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    background: var(--hm-lime);
+    transform: rotate(45deg);
+    align-self: end;
+    margin-bottom: -4rem;
+    margin-right: 2rem;
+  }
+  .offer-choice__buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-block: 2px solid var(--hm-ink);
+  }
+  .offer-button {
+    min-height: 5rem;
+    padding: var(--space-s);
+    border: 0;
+    border-right: 1px solid var(--hm-hairline);
+    background: transparent;
+    color: inherit;
+    font: var(--step--1) var(--font-sans);
+    text-align: left;
+    cursor: pointer;
+  }
+  .offer-button span {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: var(--step--2);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--hm-ink-soft);
+  }
+  .offer-button.is-active {
+    background: var(--hm-lime);
+    color: var(--hm-ink);
+  }
+  .offer-details {
+    min-height: 10rem;
+    padding-top: var(--space-l);
+  }
+  .offer-detail ul {
+    display: grid;
+    gap: var(--space-xs);
+    margin: 0 0 var(--space-l);
+    padding: 0;
+    list-style: none;
+  }
+  .offer-detail li::before {
+    content: '+';
+    margin-right: var(--space-xs);
+    color: var(--hm-blue);
+  }
+  .offer-detail a {
+    font: var(--step--2) var(--font-mono);
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+  .is-hidden {
+    display: none;
+  }
+  @media (min-width: 55rem) {
+    .offer-picker {
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+    }
+    .offer-model {
+      min-height: 34rem;
+    }
+  }
+</style>

@@ -1,0 +1,98 @@
+<section class="human-scene" id="judgment" aria-labelledby="human-title">
+  <div class="human-scene__head">
+    <p class="eyebrow">04 / trust the split</p><h2 id="human-title">
+      AI brings the speed.<br /><em>People hold the line.</em>
+    </h2>
+  </div><div class="split-meter" data-split>
+    <div class="split-meter__machine">
+      <span>machine / accelerates</span><strong>draft<br />sort<br />repeat</strong>
+    </div><div class="split-meter__human">
+      <span>human / owns</span><strong>decide<br />edit<br />answer</strong>
+    </div><label class="split-meter__control"
+      >Adjust the balance<input
+        type="range"
+        min="20"
+        max="80"
+        value="50"
+        aria-label="Adjust the balance between machine and human work"
+      /></label
+    >
+  </div>
+</section>
+<script>
+  const split = document.querySelector<HTMLElement>('[data-split]');
+  const balance = split?.querySelector<HTMLInputElement>('input');
+  balance?.addEventListener('input', () => {
+    split?.style.setProperty('--machine-width', `${balance.value}%`);
+  });
+</script>
+<style>
+  .human-scene {
+    padding: clamp(5rem, 12vw, 11rem) var(--gutter);
+    background: var(--hm-paper-deep);
+    color: var(--hm-ink);
+  }
+  .human-scene__head {
+    max-width: 90rem;
+    margin: auto;
+  }
+  .human-scene h2 {
+    margin: var(--space-m) 0 clamp(3rem, 8vw, 8rem);
+    font-size: clamp(3rem, 7vw, 7rem);
+    line-height: 0.86;
+    letter-spacing: var(--track-display);
+  }
+  .human-scene h2 em {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--hm-red);
+  }
+  .split-meter {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--machine-width, 50%) minmax(0, 1fr);
+    max-width: 90rem;
+    min-height: 27rem;
+    margin: auto;
+    overflow: hidden;
+    background: var(--hm-ink);
+    color: var(--hm-paper);
+  }
+  .split-meter__machine,
+  .split-meter__human {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: var(--space-l);
+  }
+  .split-meter__machine {
+    background: var(--hm-blue);
+  }
+  .split-meter__human {
+    background: var(--hm-lime);
+    color: var(--hm-ink);
+  }
+  .split-meter span {
+    font: var(--step--2) var(--font-mono);
+    text-transform: uppercase;
+  }
+  .split-meter strong {
+    font-size: clamp(2.5rem, 6vw, 6rem);
+    line-height: 0.83;
+    letter-spacing: var(--track-display);
+    text-transform: lowercase;
+  }
+  .split-meter__control {
+    position: absolute;
+    inset: auto var(--space-l) var(--space-l);
+    padding: var(--space-2xs) var(--space-s);
+    background: var(--hm-ink);
+    font: var(--step--2) var(--font-mono);
+    text-transform: uppercase;
+  }
+  .split-meter input {
+    display: block;
+    width: 100%;
+    accent-color: var(--hm-orange);
+  }
+</style>
